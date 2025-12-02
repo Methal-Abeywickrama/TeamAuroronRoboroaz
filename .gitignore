@@ -1,0 +1,7 @@
+# Webots temporary files
+*.cache
+*.exe
+*.o
+*.class
+*.pyc
+__pycache__/
