@@ -18,3 +18,6 @@ controllers/**/build/
 # Python
 *.pyc
 __pycache__/
+
+# Local Config
+CMakeLists.txt

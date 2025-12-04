@@ -9,12 +9,10 @@
 #include <webots/Receiver.hpp>
 #include <webots/Robot.hpp>
 
-
 #include "math_utils.h"
 #include "motion_control.h"
 #include "navigator.h"
 #include "sensing.h"
-
 
 using namespace webots;
 using namespace Motion;
@@ -23,32 +21,30 @@ using namespace Navigation;
 using namespace MathUtil;
 
 int main(int argc, char **argv) {
-  // Create the Robot instance.
+  // 1. Initialize the Robot
   Robot *robot = new Robot();
-
-  // Get the time step of the current world.
   int timeStep = (int)robot->getBasicTimeStep();
 
-  // Initialize subsystems
-  MotionControl motion(robot);
-  Sensing sensing(robot, timeStep);
-  Navigator navigator;
-  // MathUtils is static
+  // 2. Proof of Life (Check your Terminal for this!)
+  std::cout << ">>> SUCCESS: Main is running and connected! <<<" << std::endl;
 
-  // Main loop:
-  // - perform simulation steps until Webots is stopping the controller
-  while (robot->step(timeStep) != -1) {
-    // Read the sensors:
-    // Enter here functions to read sensor data, like:
-    //  double val = ds->getValue();
+  // 3. Get Motors
+  Motor *left = robot->getMotor("left wheel motor");
+  Motor *right = robot->getMotor("right wheel motor");
 
-    // Process sensor data here.
+  // 4. Spin in place (Visual check)
+  if (left && right) {
+    left->setPosition(INFINITY);
+    right->setPosition(INFINITY);
 
-    // Enter here functions to send actuator commands, like:
-    //  motor->setPosition(10.0);
+    left->setVelocity(5.0);
+    right->setVelocity(5.0); // Negative speed makes it spin
   }
 
-  // Enter here exit cleanup code.
+  // 5. Keep running
+  while (robot->step(timeStep) != -1) {
+    // Robot spins as long as this loop runs
+  }
 
   delete robot;
   return 0;
