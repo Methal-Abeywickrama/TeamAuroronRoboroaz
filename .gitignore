@@ -3,12 +3,18 @@ build/
 *.exe
 *.o
 *.obj
+*.class
 
 # Webots
 controllers/**/build/
 *.wbt.bak
+*.cache
 
 # IDEs
 .vscode/
 .idea/
 *.swp
+
+# Python
+*.pyc
+__pycache__/
