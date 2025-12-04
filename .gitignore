@@ -1,0 +1,14 @@
+# Build directories
+build/
+*.exe
+*.o
+*.obj
+
+# Webots
+controllers/**/build/
+*.wbt.bak
+
+# IDEs
+.vscode/
+.idea/
+*.swp
