@@ -1046,7 +1046,7 @@ Robot {
           name "ps0"
           lookupTable [
             0 4096 0.01
-            0.3 0 0.01
+            0.19 0 0.01
           ]
           type "infra-red"
           aperture 0.1
@@ -1156,7 +1156,7 @@ Robot {
           name "ps2"
           lookupTable [
             0 4096 0.01
-            0.3 0 0.01  
+            0.24 0 0.01  
           ]
           type "infra-red"
           aperture 0.1
@@ -1211,7 +1211,7 @@ Robot {
           name "ps3"
           lookupTable [
             0 4096 0.01
-            0.3 0 0.01 
+            0.28 0 0.01 
           ]
           type "infra-red"
           aperture 0.1
@@ -1266,7 +1266,7 @@ Robot {
           name "ps4"
           lookupTable [
             0 4096 0.01
-            0.3 0 0.01 
+            0.28 0 0.01 
           ]
           type "infra-red"
           aperture 0.1
@@ -1321,7 +1321,7 @@ Robot {
           name "ps5"
           lookupTable [
             0 4096 0.01
-            0.3 0 0.01 
+            0.24 0 0.01 
           ]
           type "infra-red"
           aperture 0.1
@@ -1431,7 +1431,7 @@ Robot {
           name "ps7"
           lookupTable [
             0 4096 0.01
-            0.3 0 0.01
+            0.19 0 0.01
           ]
           type "infra-red"
           aperture 0.1
