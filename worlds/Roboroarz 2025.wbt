@@ -9,8 +9,8 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.31190812297503867 0.4398465960919046 0.8421688041767833 1.629417652855227
-  position 1.2059130123253508 -2.7070973601461037 2.6200523404346256
+  orientation -0.37715653393491705 0.3136093877050188 0.8714368025585577 2.088381430082219
+  position 1.5914702673163674 -1.9410051899572038 0.8342694498088281
   follow "e-puck"
   followType "None"
 }
@@ -374,8 +374,8 @@ Wall {
   size 0.01 0.5 0.1
 }
 Robot {
-  translation 1.3838000000075306 -1.375120000298018 -6.396199471464699e-05
-  rotation -1.0174798039954892e-09 -9.479797889087754e-10 1 1.5956248921088099
+  translation 1.38534 -1.38534 -0.020064
+  rotation 0 0 1 1.5708
   children [
     HingeJoint {
       jointParameters HingeJointParameters {
@@ -395,7 +395,7 @@ Robot {
         }
       ]
       endPoint DEF EPUCK_LEFT_WHEEL Solid {
-        translation 0 0.02599999999999989 0.02
+        translation 0 0.02599999999999996 0.02
         rotation 0 -1 0 3.0468044306913016
         children [
           DEF EPUCK_WHEEL Pose {

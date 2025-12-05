@@ -1,67 +1,75 @@
-#include <iomanip>
+
 #include <iostream>
 #include <webots/Robot.hpp>
 
 #include "motion_control.h"
-// #include "sensing.h" // Future integration
+#include "sensing.h"
 
 using namespace webots;
 using namespace Motion;
 
 int main(int argc, char **argv) {
-  // 1. Initialize the Robot (Required for Webots controllers)
+  // 1. Initialize Robot & TimeStep
   Robot *robot = new Robot();
   int timeStep = (int)robot->getBasicTimeStep();
 
-  std::cout << ">>> PID Control Test Harness Started <<<" << std::endl;
+  std::cout << ">>> E-puck Calibration Harness Started <<<" << std::endl;
 
-  // 2. Configure PID
-  PIDConfig pidConfig;
-  pidConfig.Kp = 2.0;
-  pidConfig.Ki = 0.1;
-  pidConfig.Kd = 0.5;
-  pidConfig.max_output = 6.28; // Max speed (rad/s)
-  pidConfig.min_output = -6.28;
-  pidConfig.max_integral = 2.0;            // Anti-windup limit
-  pidConfig.derivative_filter_alpha = 0.1; // Smoothing factor
+  // 2. Initialize Modules
+  // We pass the 'robot' pointer to both modules so they can access devices.
+  Sensing *sensing = new Sensing(robot);
+  MotionController *motion = new MotionController(robot, sensing);
 
-  PID pid(pidConfig);
-
-  // 3. Simulation Parameters
-  double target_position = 10.0;
-  double current_position = 0.0;
-  double dt = timeStep / 1000.0; // Convert ms to seconds
-
-  std::cout << std::fixed << std::setprecision(3);
-  std::cout << "Target: " << target_position << std::endl;
-  std::cout << "Step | Current | Error | Output | P-Term | I-Term | D-Term"
-            << std::endl;
-  std::cout << "-------------------------------------------------------------"
-            << std::endl;
-
-  // 4. Run Test Loop (Simulate 50 steps)
-  for (int i = 0; i < 100; i++) {
-    // Calculate PID output
-    PIDResult result = pid.calculate(target_position, current_position, dt);
-
-    // Print Status
-    std::cout << std::setw(4) << i << " | " << std::setw(7) << current_position
-              << " | " << std::setw(5) << (target_position - current_position)
-              << " | " << std::setw(6) << result.output << " | " << std::setw(6)
-              << result.p_term << " | " << std::setw(6) << result.i_term
-              << " | " << std::setw(6) << result.d_term << std::endl;
-
-    // Simulate Physics (Simple integration: position += velocity * dt)
-    // In a real robot, this would be the motor moving the robot
-    current_position += result.output * dt;
-
-    // Step the Webots simulation (keep connection alive)
-    if (robot->step(timeStep) == -1)
-      break;
+  // 3. Settling Phase
+  // Give physics a moment to stabilize before moving (prevents initial
+  // weirdness)
+  std::cout << "Status: Waiting for physics to settle..." << std::endl;
+  for (int i = 0; i < 50; i++) {
+    robot->step(timeStep);
+    sensing->update();
   }
 
-  std::cout << ">>> Test Complete <<<" << std::endl;
+  // 4. Start Calibration Move
+  // We command the robot to move exactly 1.0 meter forward.
+  double commandDist = 1.0;
+  motion->moveForward(commandDist);
 
+  // 5. Execution Loop
+  std::cout << "Status: Executing Move..." << std::endl;
+
+  while (robot->step(timeStep) != -1) {
+    // A. Update Sensors (Reads Encoders/IMU)
+    sensing->update();
+
+    // B. Update Motion (PID calculation)
+    double dt = timeStep / 1000.0;
+    motion->update(dt);
+
+    // C. Exit when done
+    if (!motion->isBusy()) {
+      std::cout << "Status: Motion Complete!" << std::endl;
+      break;
+    }
+  }
+
+  // 6. Post-Run Diagnostics
+  std::cout << "------------------------------------------------" << std::endl;
+  std::cout << ">>> CALIBRATION INSTRUCTIONS <<<" << std::endl;
+  std::cout << "1. Measure the REAL distance the robot traveled in Webots."
+            << std::endl;
+  std::cout << "   (Use the Ruler tool or Translation field in the 3D view)"
+            << std::endl;
+  std::cout << "2. Expected (Internal) Distance: " << commandDist << " m"
+            << std::endl;
+  std::cout << "3. Calculate New Radius:" << std::endl;
+  std::cout << "   NewRadius = (RealDistance / " << commandDist
+            << ") * OldRadius" << std::endl;
+  std::cout << "   Current OldRadius in code: 0.0205 (Default)" << std::endl;
+  std::cout << "------------------------------------------------" << std::endl;
+
+  // Cleanup
+  delete motion;
+  delete sensing;
   delete robot;
   return 0;
 }
