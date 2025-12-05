@@ -10,7 +10,7 @@ using namespace webots;
 // Constants for e-puck math
 // Wheel radius = 20.5mm, Axle length = 52mm
 const double MAX_SPEED = 6.28; 
-const double TARGET_DISTANCE_IN_METERS = 0.5; // 2 squares * 0.25m
+const double TARGET_DISTANCE_IN_METERS = 1.2; // 2 squares * 0.25m
 const double WHEEL_RADIUS = 0.0205;
 
 // Formula: Arc Length = Radius * Theta -> Theta = Distance / Radius
