@@ -1,4 +1,4 @@
-#VRML_SIM R2023b utf8
+#VRML_SIM R2025a utf8
 
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
@@ -8,10 +8,11 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/Roughcast.proto"
 
 WorldInfo {
+  basicTimeStep 16
 }
 Viewpoint {
-  orientation -0.4305555038771109 0.48905313515031057 0.7585835412667343 1.89441361842103
-  position 0.32417907507979166 -3.256917485193295 5.977111831140373
+  orientation 0.6213505129094623 0.5253240493149973 -0.5813417095981007 2.0931097559985865
+  position -0.4053481372720873 0.33528635036287224 4.446209334991471
   follow "e-puck"
   followType "None"
 }
@@ -375,13 +376,9 @@ Wall {
   size 0.01 0.5 0.1
 }
 E-puck {
-  hidden position_0_0 -9.28935414175886e-08
-  hidden position_0_1 -9.289371095101699e-08
-  hidden rotation_1 0 -1 0 3.0468044609426577
-  hidden rotation_2 0 -1 0 4.0277115027131725
-  translation 1.383800000007531 -1.3751200002980177 -6.39619956025704e-05
-  rotation -1.1252731416504118e-09 -8.42827889721821e-10 1 1.5956248921088074
-  controller "my_controller"
+  translation -0.892914 -0.372605 -0.030064
+  rotation 0 0 -1 -0.7854053071795866
+  controller "<extern>"
   controllerArgs [
     ""
   ]
