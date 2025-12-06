@@ -7,6 +7,7 @@
 
 using namespace webots;
 using namespace Motion;
+using namespace Sensor;
 
 int main(int argc, char **argv) {
   // 1. Initialize Robot & TimeStep
@@ -17,25 +18,32 @@ int main(int argc, char **argv) {
 
   // 2. Initialize Modules
   // We pass the 'robot' pointer to both modules so they can access devices.
-  Sensing *sensing = new Sensing(robot);
+  Sensing *sensing = new Sensing(robot, timeStep);
   MotionController *motion = new MotionController(robot, sensing);
 
   // 3. Settling Phase
   // Give physics a moment to stabilize before moving (prevents initial
   // weirdness)
   std::cout << "Status: Waiting for physics to settle..." << std::endl;
-  for (int i = 0; i < 50; i++) {
+  for (int i = 0; i < 20; i++) {
     robot->step(timeStep);
     sensing->update();
   }
+  robot->getMotor("left wheel motor")->setVelocity(0.0);
+  robot->getMotor("right wheel motor")->setVelocity(0.0);
+  // 3b. Calibrate Gyro (MUST be done while stationary)
+  // Increased to 100 samples for better bias estimation
+  sensing->calibrateGyro(100);
 
   // 4. Start Calibration Move
-  // We command the robot to move exactly 1.0 meter forward.
-  double commandDist = 1.0;
-  motion->moveForward(commandDist);
+  // We command the robot to move exactly 1.25 meter forward.
+  double commandDist = 1.25;
+  // motion->moveForward(commandDist); // Commented out for Rotation Tuning
 
   // 5. Execution Loop
   std::cout << "Status: Executing Move..." << std::endl;
+
+  bool hasTurned = false; // Simple flag to chain commands in this basic harness
 
   while (robot->step(timeStep) != -1) {
     // A. Update Sensors (Reads Encoders/IMU)
@@ -45,10 +53,16 @@ int main(int argc, char **argv) {
     double dt = timeStep / 1000.0;
     motion->update(dt);
 
-    // C. Exit when done
+    // C. Exit/Chain when done
     if (!motion->isBusy()) {
-      std::cout << "Status: Motion Complete!" << std::endl;
-      break;
+      if (!hasTurned) {
+        std::cout << "Status: Forward Complete. Turning Left..." << std::endl;
+        motion->turnLeft(1); // 90 Degrees
+        hasTurned = true;
+      } else {
+        std::cout << "Status: All Commands Complete!" << std::endl;
+        break;
+      }
     }
   }
 

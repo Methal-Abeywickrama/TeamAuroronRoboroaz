@@ -1,70 +1,63 @@
-#ifndef SENSING_HPP
-#define SENSING_HPP
+#ifndef SENSING_H
+#define SENSING_H
 
 #define _USE_MATH_DEFINES
+#include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <string>
+#include <vector>
+
+// Webots Includes
 #include <webots/Camera.hpp>
 #include <webots/DistanceSensor.hpp>
-#include <webots/InertialUnit.hpp>
+#include <webots/Gyro.hpp>
 #include <webots/LED.hpp>
+#include <webots/LightSensor.hpp>
 #include <webots/PositionSensor.hpp>
 #include <webots/Robot.hpp>
 
-// Shared Enum for the Checkpoint Logic
+namespace Sensor {
+
+// Shared Enum for Vision
 enum FloorColor { COLOR_NONE, COLOR_RED, COLOR_GREEN, COLOR_CHECKERBOARD };
 
 class Sensing {
 private:
-  // -------------------------------------------------------------------------
-  // 1. HARDWARE POINTERS (Fast Access)
-  // -------------------------------------------------------------------------
+  // Device Pointers
   webots::Robot *robot;
-  webots::DistanceSensor *distSensors[8]; // ps0 - ps7
+  int timeStep;
+  double dt_seconds;
+
+  std::vector<webots::DistanceSensor *> distanceSensors;
+  std::vector<webots::LightSensor *> lightSensors;
+  std::vector<webots::LED *> leds;
+  webots::Camera *camera;
   webots::PositionSensor *leftEncoder;
   webots::PositionSensor *rightEncoder;
-  webots::InertialUnit *imu;
-  webots::Camera *camera;
-  webots::LED *led;
+  webots::Gyro *gyro;
 
-  // -------------------------------------------------------------------------
-  // 2. CACHED DATA (The Snapshot)
-  // -------------------------------------------------------------------------
-  // Storing processed data here guarantees synchronization across all PID
-  // layers.
+  // Cache Variables (The "Snapshot")
   double cached_dist_meters[8];
-  double cached_yaw;
   double cached_enc_left;
   double cached_enc_right;
   FloorColor cached_floor_color;
 
-  // -------------------------------------------------------------------------
-  // 3. TUNING CONSTANTS (Calibration)
-  // -------------------------------------------------------------------------
-  // Filter Alpha: 0.6 = Moderate smoothing. Lower = smoother but laggier.
-  const double FILTER_ALPHA = 0.6;
+  // E-puck Physical Constants
+  const double WHEEL_RADIUS = 0.0205;
+  const double AXLE_LENGTH = 0.052;
 
-  // IR Linearization Constants (Calibrated for Standard Webots E-puck)
-  // Curve fits: Dist = Scale * (Raw / 100)^Exponent
-  const double CALIB_SCALE = 0.18;   // Approx max range ~20cm reliable
-  const double CALIB_EXP = -0.70;    // E-puck sensor falloff curve
-  const double MAX_VALID_DIST = 2.0; // Return this if sensor sees "Infinity"
+  // YAW VARIABLES (Separated)
+  double yaw_odometry;
+  double yaw_gyro;
+  double gyro_bias; // Static drift value
 
-  // -------------------------------------------------------------------------
-  // 4. PRIVATE HELPERS (The "Translator" Logic)
-  // -------------------------------------------------------------------------
+  // Odometry History
+  double lastLeftVal;
+  double lastRightVal;
 
-  // Converts raw bits (0-4096) into real Meters for Layer 4 Fusion
-  double rawToMeters(double raw_val) {
-    // E-puck sensors return ~80 when looking at nothing (Infinity)
-    if (raw_val < 80.0)
-      return MAX_VALID_DIST;
-
-    // Power law approximation for Sharp IR sensors
-    return CALIB_SCALE * pow(raw_val / 100.0, CALIB_EXP);
-  }
-
-  // Standardizes Angle to -PI to +PI range for Layer 3 Heading Lock
+  // --- HELPER: Normalize Angle (-PI to +PI) ---
+  // Keeps angles clean for PID (e.g., converts 6.30 rad to 0.02 rad)
   double normalizeAngle(double angle) {
     while (angle > M_PI)
       angle -= 2.0 * M_PI;
@@ -73,7 +66,7 @@ private:
     return angle;
   }
 
-  // Simple Vision Processor for Checkpoint Logic
+  // Helper: Process Vision
   FloorColor processVision() {
     if (!camera)
       return COLOR_NONE;
@@ -83,15 +76,10 @@ private:
 
     int w = camera->getWidth();
     int h = camera->getHeight();
-
-    // Safety Check: Ensure image is large enough for ROI
     if (w < 5 || h < 5)
       return COLOR_NONE;
 
-    // Strategy: ROI (Region of Interest) - Center 5x5 pixels only
-    // This prevents detecting checkpoints in adjacent lanes.
-    long r = 0, g = 0, b = 0;
-    int count = 0;
+    int r = 0, g = 0, b = 0, count = 0;
     int startX = (w / 2) - 2;
     int startY = (h / 2) - 2;
 
@@ -109,132 +97,246 @@ private:
     g /= count;
     b /= count;
 
-    // Simple Color Thresholding
     if (g > r + 40 && g > b + 40)
       return COLOR_GREEN;
+    // Red is often detected on the walls, be careful with this threshold
     if (r > g + 40 && r > b + 40)
       return COLOR_RED;
 
     return COLOR_NONE;
   }
 
-public:
-  // -------------------------------------------------------------------------
-  // 5. CONSTRUCTOR
-  // -------------------------------------------------------------------------
-  Sensing(webots::Robot *r) : robot(r) {
-    // Init Distance Sensors (ps0 - ps7)
-    char name[4] = "ps0";
+  void initSensors() {
+    // 1. Distance Sensors
+    std::string psNames[8] = {"ps0", "ps1", "ps2", "ps3",
+                              "ps4", "ps5", "ps6", "ps7"};
     for (int i = 0; i < 8; i++) {
-      name[2] = '0' + i;
-      distSensors[i] = robot->getDistanceSensor(name);
-      if (distSensors[i]) {
-        distSensors[i]->enable(robot->getBasicTimeStep());
-      } else {
-        std::cerr << "Warning: Distance Sensor " << name << " not found!"
-                  << std::endl;
+      webots::DistanceSensor *ds = robot->getDistanceSensor(psNames[i]);
+      if (ds) {
+        ds->enable(timeStep);
+        distanceSensors.push_back(ds);
+        cached_dist_meters[i] = 0.0;
       }
-      cached_dist_meters[i] = 0.0;
     }
 
-    // Init Encoders
+    // 2. Camera
+    camera = robot->getCamera("camera");
+    if (camera)
+      camera->enable(timeStep);
+
+    // 3. Encoders
     leftEncoder = robot->getPositionSensor("left wheel sensor");
     rightEncoder = robot->getPositionSensor("right wheel sensor");
     if (leftEncoder)
-      leftEncoder->enable(robot->getBasicTimeStep());
-    else
-      std::cerr << "Warning: Left Encoder not found!" << std::endl;
-
+      leftEncoder->enable(timeStep);
     if (rightEncoder)
-      rightEncoder->enable(robot->getBasicTimeStep());
-    else
-      std::cerr << "Warning: Right Encoder not found!" << std::endl;
+      rightEncoder->enable(timeStep);
 
-    // Init IMU
-    imu = robot->getInertialUnit("inertial unit");
-    if (imu) {
-      imu->enable(robot->getBasicTimeStep());
-    } else {
-      std::cerr << "Warning: Inertial Unit not found! (Check your PROTO)"
-                << std::endl;
-    }
+    // 4. Gyro
+    gyro = robot->getGyro("gyro");
+    if (gyro)
+      gyro->enable(timeStep);
 
-    // Init Camera (Lower update rate to save CPU)
-    camera = robot->getCamera("camera");
-    if (camera)
-      camera->enable(64);
-
-    // Init LED
-    led = robot->getLED("led0");
-
-    // Init Cache
-    cached_yaw = 0.0;
-    cached_enc_left = 0.0;
-    cached_enc_right = 0.0;
-    cached_floor_color = COLOR_NONE;
-  }
-
-  // -------------------------------------------------------------------------
-  // 6. UPDATE LOOP (The "Snapshot" - Run once per Step)
-  // -------------------------------------------------------------------------
-  void update() {
-    // A. Encoders (Layer 1 & 2)
-    if (leftEncoder)
-      cached_enc_left = leftEncoder->getValue();
-    if (rightEncoder)
-      cached_enc_right = rightEncoder->getValue();
-
-    // B. IMU (Layer 3)
-    // Webots returns [Roll, Pitch, Yaw]. We only need Yaw (Index 2).
-    if (imu) {
-      const double *rpy = imu->getRollPitchYaw();
-      if (rpy && !std::isnan(rpy[2])) {
-        cached_yaw = normalizeAngle(rpy[2]);
+    // 5. Light Sensors (ls0 - ls7)
+    std::string lsNames[8] = {"ls0", "ls1", "ls2", "ls3",
+                              "ls4", "ls5", "ls6", "ls7"};
+    for (int i = 0; i < 8; i++) {
+      webots::LightSensor *ls = robot->getLightSensor(lsNames[i]);
+      if (ls) {
+        ls->enable(timeStep);
+        lightSensors.push_back(ls);
       }
     }
 
-    // C. Distance Sensors (Layer 4)
-    for (int i = 0; i < 8; i++) {
-      if (!distSensors[i])
-        continue;
+    // 6. LEDs
+    std::string lNames[10] = {"led0", "led1", "led2", "led3", "led4",
+                              "led5", "led6", "led7", "led8", "led9"};
+    for (int i = 0; i < 10; i++) {
+      webots::LED *l = robot->getLED(lNames[i]);
+      if (l)
+        leds.push_back(l);
+    }
+  }
 
-      double raw = distSensors[i]->getValue();
-      double meters = rawToMeters(raw);
+public:
+  Sensing(webots::Robot *robot, int timeStep) {
+    this->robot = robot;
+    this->timeStep = timeStep;
 
-      // Apply Exponential Smoothing Filter to remove Physics Noise
-      cached_dist_meters[i] = (FILTER_ALPHA * meters) +
-                              ((1.0 - FILTER_ALPHA) * cached_dist_meters[i]);
+    // Pre-calculate dt in seconds (ms -> seconds)
+    this->dt_seconds = (double)timeStep / 1000.0;
+
+    // Init logic variables
+    yaw_odometry = 0.0;
+    yaw_gyro = 0.0;
+    gyro_bias = 0.0; // Assumed 0 until calibrated
+
+    lastLeftVal = 0.0;
+    lastRightVal = 0.0;
+
+    initSensors();
+  }
+
+  ~Sensing() {}
+
+  // -------------------------------------------------------------------------
+  // 0. CALIBRATION (Call in main.cpp)
+  // -------------------------------------------------------------------------
+  // This calculates the static drift of the gyro while the robot is still.
+  void calibrateGyro(int samples = 50) {
+    if (!gyro)
+      return;
+    double sum = 0.0;
+    std::cout << "Calibrating Gyro... (Keep Robot Still)" << std::endl;
+
+    for (int i = 0; i < samples; i++) {
+      robot->step(timeStep); // Advance physics
+      const double *val = gyro->getValues();
+      if (!std::isnan(val[2])) {
+        sum += val[2]; // Z-axis
+      }
     }
 
-    // D. Vision (Checkpoint Logic)
+    gyro_bias = sum / samples;
+
+    // Reset headings after calibration so we start fresh at 0.0
+    yaw_gyro = 0.0;
+    yaw_odometry = 0.0;
+    std::cout << "Gyro Calibrated. Bias: " << gyro_bias << std::endl;
+  }
+
+  // -------------------------------------------------------------------------
+  // 1. UPDATE LOOP (Call ONCE per step)
+  // -------------------------------------------------------------------------
+  void update() {
+    // A. METHOD 1: Odometry (Wheel Encoders) - Kept Separate
+    if (leftEncoder && rightEncoder) {
+      cached_enc_left = leftEncoder->getValue();
+      cached_enc_right = rightEncoder->getValue();
+
+      double diffL = cached_enc_left - lastLeftVal;
+      double diffR = cached_enc_right - lastRightVal;
+
+      double distL = diffL * WHEEL_RADIUS;
+      double distR = diffR * WHEEL_RADIUS;
+
+      // Odometry Math
+      double deltaYaw = (distR - distL) / AXLE_LENGTH;
+      yaw_odometry += deltaYaw;
+
+      // Normalize Odometry
+      yaw_odometry = normalizeAngle(yaw_odometry);
+
+      lastLeftVal = cached_enc_left;
+      lastRightVal = cached_enc_right;
+    }
+
+    // B. METHOD 2: Gyroscope (Integration) - The Active One
+    if (gyro) {
+      const double *values = gyro->getValues();
+      // Index 2 = Z-Axis (Yaw)
+      if (!std::isnan(values[2])) {
+        // 1. Subtract Bias
+        double angularVelocity = values[2] - gyro_bias;
+
+        // 2. Deadband (Optional: Ignore noise < 0.002 rad/s)
+        if (std::abs(angularVelocity) < 0.002)
+          angularVelocity = 0.0;
+
+        // 3. Integrate
+        double deltaGyro = angularVelocity * dt_seconds;
+        yaw_gyro += deltaGyro;
+
+        // 4. Normalize
+        yaw_gyro = normalizeAngle(yaw_gyro);
+      }
+    }
+
+    // C. Update Distance Sensors (Power Law Linearization)
+    for (int i = 0; i < 8; i++) {
+      if (i < distanceSensors.size()) {
+        double raw = distanceSensors[i]->getValue();
+
+        double meters;
+        if (raw < 80.0) {
+          meters = 2.0; // Far away / Infinity
+        } else {
+          meters = 0.185 * pow(raw / 100.0, -0.70);
+        }
+
+        // Filter: 60% New, 40% Old
+        cached_dist_meters[i] = (0.6 * meters) + (0.4 * cached_dist_meters[i]);
+      }
+    }
+
+    // D. Update Vision
     cached_floor_color = processVision();
   }
 
   // -------------------------------------------------------------------------
-  // 7. GETTERS (The Interface for MotionControl)
+  // 2. GRID SNAP SUPPORT (Critical for MotionControl)
+  // -------------------------------------------------------------------------
+  // This allows the MotionController to say: "I know for a fact we are at 90
+  // degrees." It overwrites the accumulated drift with the clean Grid Angle.
+  void overwriteYaw(double cleanGridAngle) {
+    yaw_gyro = normalizeAngle(cleanGridAngle);
+    yaw_odometry =
+        normalizeAngle(cleanGridAngle); // Sync both for debugging clarity
+    // std::cout << "Sensing: Yaw snapped to " << cleanGridAngle << std::endl;
+  }
+
+  void resetYaw() {
+    yaw_odometry = 0.0;
+    yaw_gyro = 0.0;
+    std::cout << "All Yaw values reset to 0.0" << std::endl;
+  }
+
+  // -------------------------------------------------------------------------
+  // 3. GETTERS
   // -------------------------------------------------------------------------
 
-  // Returns Distance in METERS (Linearized)
-  // Indices: 5=Left, 2=Right, 0=FrontLeft, 7=FrontRight (E-puck Standard)
+  // PRIMARY GETTER: Returns Gyro Yaw (The Winner)
+  double getYaw() { return yaw_gyro; }
+
+  // Debug Getters
+  double getYawOdometry() { return yaw_odometry; }
+  double getYawGyro() { return yaw_gyro; } // Same as getYaw()
+
   double getDistance(int index) {
-    if (index < 0 || index > 7)
+    if (index < 0 || index >= 8)
       return 99.0;
     return cached_dist_meters[index];
   }
 
-  // Returns Yaw in Radians (-PI to +PI)
-  double getYaw() { return cached_yaw; }
-
-  // Returns Total Wheel Rotation in Radians
   double getLeftEncoder() { return cached_enc_left; }
   double getRightEncoder() { return cached_enc_right; }
-
   FloorColor getFloorColor() { return cached_floor_color; }
 
-  void setLED(bool on) {
-    if (led)
-      led->set(on ? 1 : 0);
+  // Wall Helpers
+  bool isWallAtFront() {
+    return (getDistance(0) < 0.15) && (getDistance(7) < 0.15);
+  }
+  bool isWallAtBack() {
+    return (getDistance(3) < 0.1) && (getDistance(4) < 0.1);
+  }
+  bool isWallAtLeft() { return (getDistance(5) < 0.15); }
+  bool isWallAtRight() { return (getDistance(2) < 0.15); }
+
+  double getDistanceToFrontWall() {
+    double d1 = getDistance(0);
+    double d2 = getDistance(7);
+    if (d1 > 1.0 || d2 > 1.0)
+      return 2.0;
+    return (d1 + d2) / 2.0;
+  }
+  double getDistanceToLeftWall() { return getDistance(5); }
+  double getDistanceToRightWall() { return getDistance(2); }
+
+  void setLEDs(bool on) {
+    for (auto *l : leds)
+      l->set(on ? 1 : 0);
   }
 };
+} // namespace Sensor
 
-#endif
+#endif // SENSING_H
