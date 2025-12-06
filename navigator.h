@@ -116,7 +116,7 @@ namespace Navigation {
         }
 
         // Logic from Source 1: Odometry integration
-        void head(bool north_rb, bool east_rb, bool south_rb, bool west_rb, const Odometry& odem, int coord_x, int coord_y) {
+        void head_update(bool north_rb, bool east_rb, bool south_rb, bool west_rb, const Odometry& odem, int coord_x, int coord_y) {
             int i = index(coord_x, coord_y);
             if (!isValid(coord_x, coord_y)) return;
             
@@ -178,20 +178,6 @@ namespace Navigation {
         }
     };
 
-    // --- 4. Helper Structures & Functions ---
-
-    struct Cell {
-        int parent_i, parent_j;
-        double f, g, h;
-    };
-
-    // Global helper for random numbers
-    inline int getRandom(int min, int max) {
-        static std::random_device rd;
-        static std::mt19937 gen(rd());
-        std::uniform_int_distribution<> distr(min, max);
-        return distr(gen);
-    }
 
     // --- 5. Navigator Class (Structure from Source 2) ---
     class Navigator {
