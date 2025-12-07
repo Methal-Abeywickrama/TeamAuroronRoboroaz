@@ -25,6 +25,17 @@ struct MazeConfig {
   static constexpr double AXLE_LENGTH = 0.052;
   static constexpr double MAX_SPEED = 6.28;
   static constexpr double INITIAL_HEADING = 1.5709; // North facing start
+
+  // Drift compensation: radians of counterclockwise correction per meter
+  // Tune this to eliminate systematic clockwise drift during FORWARD movement
+  static constexpr double DRIFT_PER_METER = 0.00406;
+
+  // Turn slip compensation: wheel slip during in-place rotation
+  // Wheels report more rotation than actually occurs
+  // Factor < 1 scales down deltaOdom (0.913 = ~8.7% slip based on 0.137 rad
+  // error / 1.5708 rad turn) Tune: if turn undershoots, decrease; if
+  // overshoots, increase
+  static constexpr double TURN_SLIP_FACTOR = 0.913;
 };
 
 // ============================================================================
@@ -35,14 +46,33 @@ struct PIDParams {
   static constexpr double DRIVE_KI = 0.0;
   static constexpr double DRIVE_KD = 1.0;
 
-  static constexpr double ANGLE_KP = 1.5;
-  static constexpr double ANGLE_KI = 0.0;
-  static constexpr double ANGLE_KD = 0.2;
+  // Heading correction during driving
+  static constexpr double ANGLE_KP = 2.5; // Increased for better correction
+  static constexpr double ANGLE_KI =
+      0.1; // Add integral to eliminate steady-state
+  static constexpr double ANGLE_KD = 0.3; // Slightly more damping
   static constexpr double ANGLE_MAX_CORRECT = 1.5;
 
+  // End-of-drive fine alignment (corrects accumulated drift)
+  static constexpr double DRIVE_FINE_TOLERANCE =
+      0.0010; // 0.001 rad = ~0.06 deg
+  static constexpr int DRIVE_SETTLE_CYCLES = 3;
+
+  // Coarse turn phase (fast)
   static constexpr double ROT_KP = 1.5;
   static constexpr double ROT_KI = 0.0;
   static constexpr double ROT_KD = 0.4;
+
+  // Fine alignment phase (slow, precise)
+  static constexpr double FINE_ROT_KP = 3.0; // Higher P for precision
+  static constexpr double FINE_ROT_KI =
+      0.1; // Small I to eliminate steady-state error
+  static constexpr double FINE_ROT_KD = 0.8; // Higher D to prevent overshoot
+  static constexpr double FINE_THRESHOLD =
+      0.0300; // Switch to fine phase at ~1.7 degrees
+  static constexpr double FINE_TOLERANCE =
+      0.0010; // Complete at 0.001 rad = ~0.06 degrees
+  static constexpr int SETTLE_CYCLES = 5; // Must be stable for 5 cycles
 
   static constexpr double WALL_GAIN = 3.0;
   static constexpr double WALL_MAX_CORRECT = 0.8;
@@ -119,6 +149,8 @@ class MovingController {
 public:
   enum class State { Idle, Driving, Rotating };
   enum class DriveMode { Normal, FastCorridor };
+  enum class TurnPhase { Coarse, Fine };       // Two-phase turning
+  enum class DrivePhase { Moving, FineAlign }; // Two-phase driving
 
 private:
   webots::Robot *robot_;
@@ -130,9 +162,15 @@ private:
   PID distPID_;
   PID anglePID_;
   PID rotPID_;
+  PID fineRotPID_; // Separate PID for fine alignment
 
   State state_ = State::Idle;
   DriveMode driveMode_ = DriveMode::Normal;
+  TurnPhase turnPhase_ = TurnPhase::Coarse;
+  DrivePhase drivePhase_ = DrivePhase::Moving;
+  int settleCounter_ = 0; // Count stable cycles for turn settling
+  int driveSettleCounter_ =
+      0; // Count stable cycles for drive heading alignment
 
   double targetDist_ = 0.0;
   double targetHeading_ = 0.0;
@@ -179,7 +217,7 @@ private:
       return;
     }
 
-    // Pure odometry heading (gyro too noisy in Webots)
+    // Pure odometry heading
     double dL = (encL - lastEncL_) * MazeConfig::WHEEL_RADIUS;
     double dR = (encR - lastEncR_) * MazeConfig::WHEEL_RADIUS;
     double deltaOdom = (dR - dL) / MazeConfig::AXLE_LENGTH;
@@ -187,8 +225,18 @@ private:
     lastEncL_ = encL;
     lastEncR_ = encR;
 
-    odomHeading_ = normalizeAngle(odomHeading_ + deltaOdom);
-    fusedHeading_ = odomHeading_; // Use pure odometry
+    if (state_ == State::Rotating) {
+      // During rotation: apply slip factor (wheels slip, less actual rotation)
+      deltaOdom *= MazeConfig::TURN_SLIP_FACTOR;
+      odomHeading_ = normalizeAngle(odomHeading_ + deltaOdom);
+    } else {
+      // During forward movement: apply distance-based drift correction
+      double distStep = (dL + dR) / 2.0;
+      double driftCorrection = distStep * MazeConfig::DRIFT_PER_METER;
+      odomHeading_ = normalizeAngle(odomHeading_ + deltaOdom - driftCorrection);
+    }
+
+    fusedHeading_ = odomHeading_;
   }
 
   bool inCorridor() {
@@ -299,6 +347,8 @@ public:
     anglePID_.configure(PIDParams::ANGLE_KP, PIDParams::ANGLE_KI,
                         PIDParams::ANGLE_KD);
     rotPID_.configure(PIDParams::ROT_KP, PIDParams::ROT_KI, PIDParams::ROT_KD);
+    fineRotPID_.configure(PIDParams::FINE_ROT_KP, PIDParams::FINE_ROT_KI,
+                          PIDParams::FINE_ROT_KD);
 
     debugFile_.open("debug_report.txt", std::ios::out | std::ios::trunc);
     if (debugFile_.is_open()) {
@@ -330,6 +380,8 @@ public:
       targetHeading_ = fusedHeading_;
     }
 
+    drivePhase_ = DrivePhase::Moving;
+    driveSettleCounter_ = 0;
     distPID_.reset();
     anglePID_.reset();
 
@@ -342,8 +394,11 @@ public:
 
   void rotate(double radians) {
     state_ = State::Rotating;
+    turnPhase_ = TurnPhase::Coarse; // Start with fast coarse phase
+    settleCounter_ = 0;
     targetHeading_ = normalizeAngle(fusedHeading_ + radians);
     rotPID_.reset();
+    fineRotPID_.reset();
     std::cout << "ROTATE: " << radians << " rad -> target " << targetHeading_
               << std::endl;
   }
@@ -369,49 +424,101 @@ public:
       double dR = (encR - startEncR_) * MazeConfig::WHEEL_RADIUS;
       double currentDist = (dL + dR) / 2.0;
       double remaining = targetDist_ - currentDist;
-
-      double baseSpeed = computeBaseSpeed(remaining);
-      double distOutput = distPID_.compute(remaining, dt);
-      double speedCmd = std::min(baseSpeed, std::abs(distOutput));
-      if (distOutput < 0)
-        speedCmd = -speedCmd;
-
       double headingError = normalizeAngle(targetHeading_ - fusedHeading_);
-      double turnCorrection = anglePID_.compute(headingError, dt);
 
-      // CLAMP turn correction
-      turnCorrection =
-          std::max(-PIDParams::ANGLE_MAX_CORRECT,
-                   std::min(PIDParams::ANGLE_MAX_CORRECT, turnCorrection));
+      if (drivePhase_ == DrivePhase::Moving) {
+        // Normal driving phase
+        double baseSpeed = computeBaseSpeed(remaining);
+        double distOutput = distPID_.compute(remaining, dt);
+        double speedCmd = std::min(baseSpeed, std::abs(distOutput));
+        if (distOutput < 0)
+          speedCmd = -speedCmd;
 
-      double wallCorrection = 0.0;
-      if (remaining > 0.03) {
-        wallCorrection = getWallCorrection();
-      }
+        double turnCorrection = anglePID_.compute(headingError, dt);
+        turnCorrection =
+            std::max(-PIDParams::ANGLE_MAX_CORRECT,
+                     std::min(PIDParams::ANGLE_MAX_CORRECT, turnCorrection));
 
-      double totalTurn = turnCorrection + wallCorrection;
-      double leftSpeed = speedCmd - totalTurn;
-      double rightSpeed = speedCmd + totalTurn;
-      setMotors(leftSpeed, rightSpeed);
+        double wallCorrection = 0.0;
+        if (remaining > 0.03) {
+          wallCorrection = getWallCorrection();
+        }
 
-      logDebug(currentDist, remaining, fusedHeading_, headingError,
-               turnCorrection, wallCorrection, speedCmd, leftSpeed, rightSpeed);
+        double totalTurn = turnCorrection + wallCorrection;
+        double leftSpeed = speedCmd - totalTurn;
+        double rightSpeed = speedCmd + totalTurn;
+        setMotors(leftSpeed, rightSpeed);
 
-      if (std::abs(remaining) < 0.005 && std::abs(speedCmd) < 0.2) {
-        stop();
-        std::cout << "ARRIVED: dist=" << currentDist << "m" << std::endl;
+        logDebug(currentDist, remaining, fusedHeading_, headingError,
+                 turnCorrection, wallCorrection, speedCmd, leftSpeed,
+                 rightSpeed);
+
+        // Check if distance target reached - switch to fine alignment
+        if (std::abs(remaining) < 0.005) {
+          setMotors(0.0, 0.0);
+          drivePhase_ = DrivePhase::FineAlign;
+          driveSettleCounter_ = 0;
+          fineRotPID_.reset();
+          std::cout << "DRIVE: Switching to FINE heading alignment (err="
+                    << headingError << ")" << std::endl;
+        }
+      } else {
+        // Fine alignment phase - correct heading drift at end
+        double turnSpeed = fineRotPID_.compute(headingError, dt);
+        turnSpeed = std::max(-0.5, std::min(0.5, turnSpeed));
+        setMotors(-turnSpeed, turnSpeed);
+
+        if (std::abs(headingError) < PIDParams::DRIVE_FINE_TOLERANCE) {
+          driveSettleCounter_++;
+          if (driveSettleCounter_ >= PIDParams::DRIVE_SETTLE_CYCLES) {
+            stop();
+            std::cout << "ARRIVED: dist=" << currentDist
+                      << "m yaw=" << std::fixed << std::setprecision(5)
+                      << fusedHeading_ << " (aligned)" << std::endl;
+          }
+        } else {
+          driveSettleCounter_ = 0;
+        }
       }
     } else if (state_ == State::Rotating) {
       double headingError = normalizeAngle(targetHeading_ - fusedHeading_);
-      double turnSpeed = rotPID_.compute(headingError, dt);
+      double turnSpeed = 0.0;
+
+      if (turnPhase_ == TurnPhase::Coarse) {
+        // Coarse phase: fast rotation until close to target
+        turnSpeed = rotPID_.compute(headingError, dt);
+        turnSpeed = std::max(-3.0, std::min(3.0, turnSpeed));
+
+        // Switch to fine phase when close enough
+        if (std::abs(headingError) < PIDParams::FINE_THRESHOLD) {
+          turnPhase_ = TurnPhase::Fine;
+          fineRotPID_.reset();
+          settleCounter_ = 0;
+          std::cout << "TURN: Switching to FINE alignment (err=" << headingError
+                    << ")" << std::endl;
+        }
+      } else {
+        // Fine phase: slow, precise alignment
+        turnSpeed = fineRotPID_.compute(headingError, dt);
+        turnSpeed = std::max(-0.5, std::min(0.5, turnSpeed));
+
+        // Check if within final tolerance
+        if (std::abs(headingError) < PIDParams::FINE_TOLERANCE) {
+          settleCounter_++;
+          if (settleCounter_ >= PIDParams::SETTLE_CYCLES) {
+            stop();
+            std::cout << "TURN COMPLETE: yaw=" << std::fixed
+                      << std::setprecision(5) << fusedHeading_
+                      << " target=" << targetHeading_ << " err=" << headingError
+                      << std::endl;
+            return;
+          }
+        } else {
+          settleCounter_ = 0;
+        }
+      }
 
       setMotors(-turnSpeed, turnSpeed);
-
-      // Tighter tolerance for precise turns (0.005 rad = ~0.3 degrees)
-      if (std::abs(headingError) < 0.005 && std::abs(turnSpeed) < 0.1) {
-        stop();
-        std::cout << "TURN COMPLETE: yaw=" << fusedHeading_ << std::endl;
-      }
     }
   }
 };

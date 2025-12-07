@@ -1,12 +1,11 @@
 
 #include <cmath>
-#include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <webots/Supervisor.hpp>
 
-// #include "motion_control.h"
+// #include "moving_control.h"
 #include "motion_control.h"
 #include "sensing.h"
 
@@ -14,6 +13,37 @@ using namespace webots;
 using namespace Motion;
 using namespace Sensor;
 
+// ============================================================================
+// COMMAND TYPES - Use these to build your command sequence
+// ============================================================================
+enum CommandType {
+  FORWARD,   // Move forward N tiles
+  TURN_LEFT, // Turn 90 degrees left
+  TURN_RIGHT // Turn 90 degrees right
+};
+
+struct Command {
+  CommandType type;
+  double value; // For FORWARD: number of tiles. For turns: ignored (use 0)
+};
+
+// ============================================================================
+// >>> EDIT YOUR COMMAND SEQUENCE HERE <<<
+// ============================================================================
+const std::vector<Command> COMMANDS = {
+    //{FORWARD, 5},   // Go forward 5 tiles
+    {TURN_LEFT, 0}, // Turn left 90 degrees
+    {TURN_LEFT, 0},
+    {TURN_LEFT, 0},
+    {TURN_LEFT, 0}, // Add more commands here as needed, e.g.:
+                    // {FORWARD, 3},
+                    // {TURN_RIGHT, 0},
+                    // {FORWARD, 2},
+};
+
+// ============================================================================
+// MAIN FUNCTION
+// ============================================================================
 int main(int argc, char **argv) {
   // 1. Initialize Robot
   Supervisor *robot = new Supervisor();
@@ -34,48 +64,53 @@ int main(int argc, char **argv) {
   sensing->calibrateGyro(50);
 
   std::cout << ">>> MAZE SOLVER STARTED <<<" << std::endl;
+  std::cout << "Total commands to execute: " << COMMANDS.size() << std::endl;
 
-  // 5. Command Sequence
-  enum Step { FORWARD_5, TURN_LEFT, FORWARD_1, DONE };
-  Step currentStep = FORWARD_5;
+  // 5. Execute Command Sequence
+  size_t cmdIndex = 0;
+  bool needNextCommand = true;
 
-  // Start first command
-  motion->moveForward(5); // 5 tiles = 1.25m
-
-  // 6. Main Control Loop
   while (robot->step(timeStep) != -1) {
     sensing->update();
-
     double dt = timeStep / 1000.0;
     motion->update(dt);
 
-    // Check if current command finished
-    if (!motion->isBusy()) {
-      switch (currentStep) {
-      case FORWARD_5:
-        std::cout << ">>> 5 TILES DONE, TURNING LEFT <<<" << std::endl;
-        motion->turnLeft();
-        currentStep = TURN_LEFT;
-        break;
-      case TURN_LEFT:
-        std::cout << ">>> TURN DONE, MOVING 1 TILE <<<" << std::endl;
-        motion->moveForward(1); // 1 tile = 0.25m
-        currentStep = FORWARD_1;
-        break;
-      case FORWARD_1:
+    // Start next command when ready
+    if (needNextCommand && !motion->isBusy()) {
+      if (cmdIndex >= COMMANDS.size()) {
         std::cout << ">>> ALL COMMANDS COMPLETE <<<" << std::endl;
-        currentStep = DONE;
-        break;
-      case DONE:
-        // Exit loop
         break;
       }
-      if (currentStep == DONE)
+
+      const Command &cmd = COMMANDS[cmdIndex];
+      std::cout << "[CMD " << (cmdIndex + 1) << "/" << COMMANDS.size() << "] ";
+
+      switch (cmd.type) {
+      case FORWARD:
+        std::cout << "FORWARD " << cmd.value << " tiles" << std::endl;
+        motion->moveForward(cmd.value);
         break;
+      case TURN_LEFT:
+        std::cout << "TURN LEFT" << std::endl;
+        motion->turnLeft();
+        break;
+      case TURN_RIGHT:
+        std::cout << "TURN RIGHT" << std::endl;
+        motion->turnRight();
+        break;
+      }
+
+      cmdIndex++;
+      needNextCommand = false;
+    }
+
+    // Check if command finished
+    if (!motion->isBusy()) {
+      needNextCommand = true;
     }
   }
 
-  // 7. Cleanup
+  // 6. Cleanup
   delete motion;
   delete sensing;
   delete robot;
