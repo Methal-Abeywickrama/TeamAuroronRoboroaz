@@ -381,8 +381,9 @@ E-puck {
   hidden rotation_2 0 -1 0 4.0277115027131725
   translation 1.383800000007531 -1.3751200002980177 -6.39619956025704e-05
   rotation -1.1252731416504118e-09 -8.42827889721821e-10 1 1.5956248921088074
-  controller "my_controller"
+  controller "<extern>"
   controllerArgs [
     ""
   ]
+  supervisor TRUE
 }

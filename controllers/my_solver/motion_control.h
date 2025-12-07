@@ -2,48 +2,37 @@
 #define MOTION_CONTROL_H
 
 #define _USE_MATH_DEFINES
+#include "sensing.h"
 #include <cmath>
+#include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <webots/Motor.hpp>
 
-// Future Sensor Fusion Integration
-#include "sensing.h"
-// Note: We will use sensor fusion of IMU and IR sensors in both sides for
-// future in this motion controller file.
-
 namespace Motion {
 
-struct MotionProfile {
-  double Kp;
-  double Ki;
-  double Kd;
-  double k_wall; // Centering Gain
-  std::string name;
-};
-
 struct PIDConfig {
-  double Kp;
-  double Ki;
-  double Kd;
-  double max_output;   // Clamped to this magnitude (e.g., 6.28)
-  double min_output;   // Clamped to this magnitude (e.g., -6.28)
-  double max_integral; // Anti-windup limit for integral term
-  double
-      derivative_filter_alpha; // Low-pass filter smoothing factor (0.0 - 1.0)
+  double Kp, Ki, Kd;
+  double max_output, min_output;
+  double max_integral;
+  double derivative_filter_alpha;
+  double max_ramp_rate;
 
   PIDConfig()
       : Kp(0), Ki(0), Kd(0), max_output(6.28), min_output(-6.28),
-        max_integral(5.0), derivative_filter_alpha(0.1) {}
+        max_integral(5.0), derivative_filter_alpha(0.3), max_ramp_rate(15.0) {}
 };
 
 struct PIDResult {
-  double output;
-  double p_term;
-  double i_term;
-  double d_term;
+  double output, p_term, i_term, d_term;
 };
 
 class PID {
+private:
+  PIDConfig config_;
+  double integral_, prev_error_, prev_derivative_, prev_output_;
+  bool first_run_;
+
 public:
   PID(const PIDConfig &config) : config_(config) { reset(); }
 
@@ -51,180 +40,91 @@ public:
     integral_ = 0.0;
     prev_error_ = 0.0;
     prev_derivative_ = 0.0;
+    prev_output_ = 0.0;
     first_run_ = true;
   }
 
-  PIDResult calculate(double target, double current, double dt) {
-    if (dt <= 0.0) {
+  PIDResult calculate(double target, double current, double dt,
+                      bool isAngle = false) {
+    if (dt <= 0.0)
       return {0.0, 0.0, 0.0, 0.0};
-    }
 
     double error = target - current;
 
-    // 1. Proportional Term
-    double p_term = config_.Kp * error;
-
-    // 2. Integral Term with Anti-Windup (Clamping)
-    integral_ += error * dt;
-
-    // Clamp integral to prevent windup
-    if (integral_ > config_.max_integral)
-      integral_ = config_.max_integral;
-    if (integral_ < -config_.max_integral)
-      integral_ = -config_.max_integral;
-
-    double i_term = config_.Ki * integral_;
-
-    // 3. Derivative Term with Low-Pass Filter
-    double derivative = 0.0;
-    if (!first_run_) {
-      double raw_derivative = (error - prev_error_) / dt;
-      // Filter: y[n] = alpha * x[n] + (1 - alpha) * y[n-1]
-      derivative = config_.derivative_filter_alpha * raw_derivative +
-                   (1.0 - config_.derivative_filter_alpha) * prev_derivative_;
-    } else {
-      derivative = 0.0;
-      first_run_ = false;
+    // Angle Wrapping: Normalize error to [-PI, PI]
+    if (isAngle) {
+      while (error > M_PI)
+        error -= 2.0 * M_PI;
+      while (error < -M_PI)
+        error += 2.0 * M_PI;
     }
 
+    double p_term = config_.Kp * error;
+
+    // Integral with anti-windup
+    integral_ += error * dt;
+    integral_ = std::max(std::min(integral_, config_.max_integral),
+                         -config_.max_integral);
+    double i_term = config_.Ki * integral_;
+
+    // Filtered derivative
+    double derivative = 0.0;
+    if (!first_run_) {
+      double raw_deriv = (error - prev_error_) / dt;
+      derivative = config_.derivative_filter_alpha * raw_deriv +
+                   (1.0 - config_.derivative_filter_alpha) * prev_derivative_;
+    } else {
+      first_run_ = false;
+    }
     prev_error_ = error;
     prev_derivative_ = derivative;
-
     double d_term = config_.Kd * derivative;
 
-    // 4. Total Output with Clamping
-    double output = p_term + i_term + d_term;
+    // Sum and apply slew rate limiting
+    double raw_output = p_term + i_term + d_term;
+    double output = raw_output;
 
-    if (output > config_.max_output)
-      output = config_.max_output;
-    if (output < config_.min_output)
-      output = config_.min_output;
+    // Ramp rate limiting
+    double max_change = config_.max_ramp_rate * dt;
+    output = std::max(std::min(output, prev_output_ + max_change),
+                      prev_output_ - max_change);
+
+    // Final clamping
+    output = std::max(std::min(output, config_.max_output), config_.min_output);
+    prev_output_ = output;
 
     return {output, p_term, i_term, d_term};
   }
 
-  // Allow updating config on the fly if needed
   void setConfig(const PIDConfig &config) { config_ = config; }
   PIDConfig getConfig() const { return config_; }
-
-private:
-  PIDConfig config_;
-  double integral_;
-  double prev_error_;
-  double prev_derivative_;
-  bool first_run_;
 };
 
-// -------------------------------------------------------------------------
-// Motion Controller Class (Layer 2 & 3 Integration)
-// -------------------------------------------------------------------------
-// This class bridges the raw PID logic (Layer 1) with the robot's hardware.
-// It manages state (Idle vs Driving) and converts high-level commands
-// (like "move forward 1 meter") into motor velocity commands.
 class MotionController {
 private:
-  // --- 1. HARDWARE ---
-  webots::Motor *leftMotor;
-  webots::Motor *rightMotor;
-  // Pointer to the Sensing module for access to Encoders and IMU
+  webots::Motor *leftMotor, *rightMotor;
   Sensor::Sensing *sensors;
+  webots::Robot *robot;
+  std::ofstream debugFile;
+  PID distPID, anglePID;
 
-  // --- 2. THE BRAIN ---
-  // PID Controller for Distance (Drive Control)
-  PID distPID;
-  // PID Controller for Heading (Rotation & Correction)
-  PID anglePID;
+  const double WHEEL_RADIUS = 0.02001;
+  const double MAX_SPEED = 6.28;
 
-  // --- 3. PHYSICAL CONSTANTS (The Calibration Targets) ---
-  // Wheel Radius: Critical for Odometry (Rad -> Meters conversion)
-  // E-puck standard is approx 20.5mm or 0.0205m.
-  double WHEEL_RADIUS = 0.02001;
+  // Centering parameters
+  const double WALL_TARGET = 0.0900;  // Ideal distance from wall
+  const double WALL_DEADZONE = 0.015; // ±15mm no correction zone
+  const double WALL_MAX_DIST = 0.20;  // Only correct within 20cm
 
-  // --- 4. STATE MEMORY ---
   enum State { IDLE, DRIVING, ROTATING };
   State currentState;
 
-  double targetDistance; // how far we WANT to go (Meters)
-  double targetHeading;  // where we WANT to face (Radians)
-  double startEncLeft;   // Encoder reading when we started
-  double startEncRight;  // Encoder reading when we started
+  double targetDistance, targetHeading;
+  double startEncLeft, startEncRight;
+  double stopPhaseDistance; // When to enter stopping phase
+  bool inSoftStopMode;      // Track if we've switched to soft stop
 
-  // SNAP COOLDOWN
-  double timeSinceLastSnap;
-  const double SNAP_COOLDOWN = 2.0; // Seconds
-
-  // Dynamic PID State
-  double activeKWall;
-
-  // --- 5. HELPERS ---
-
-  // Helper: Rounds the current yaw to the nearest 90 degrees (1.57 radians)
-  // Examples:
-  // Input 0.1 rad  -> Returns 0.0
-  // Input 1.6 rad  -> Returns 1.57 (PI/2)
-  double getNearestGridHeading(double currentYaw) {
-    const double GRID_STEP = M_PI / 2.0; // 90 degrees
-    return std::round(currentYaw / GRID_STEP) * GRID_STEP;
-  }
-
-  void tryGridSnap() {
-    // Cooldown Check
-    if (timeSinceLastSnap < SNAP_COOLDOWN)
-      return;
-
-    // 1. Get Wall Data
-    // 5=Left, 2=Right in Sensing.h
-    double dLeft = sensors->getDistance(5);
-    double dRight = sensors->getDistance(2);
-
-    // 2. Define Safety Thresholds
-    // We only snap if we are firmly INSIDE a corridor.
-    // Wall must be closer than 20cm (0.2m)
-    bool solidCorridor = (dLeft < 0.20 && dRight < 0.20);
-
-    if (solidCorridor) {
-      double currentYaw = sensors->getYaw();
-      double idealYaw = getNearestGridHeading(currentYaw);
-
-      // 3. Calculate Drift Error
-      double drift = std::abs(currentYaw - idealYaw);
-
-      // 4. THE SNAP CONDITIONS (The "Goldilocks" Zone)
-      // A. Drift must be noticeable (> 0.5 degrees approx 0.008 rad)
-      // B. Drift must NOT be huge (< 20 degrees approx 0.35 rad)
-      if (drift > 0.008 && drift < 0.35) {
-
-        // 5. EXECUTE THE OVERWRITE
-        sensors->overwriteYaw(idealYaw);
-
-        // 6. Reset PID Memory (CRITICAL!)
-        // If we don't do this, the Derivative term sees a massive "Jump"
-        // in error and slams the brakes. We tell it: "Relax, error is 0 now."
-        anglePID.reset();
-
-        std::cout << "SNAP: Drift " << drift << " fixed to " << idealYaw
-                  << std::endl;
-        timeSinceLastSnap = 0.0; // Reset Cooldown
-      }
-    }
-  }
-
-public:
-  // Constructor
-  // Initializes motors in Velocity Mode and configures the PID.
-  MotionController(webots::Robot *robot, Sensor::Sensing *s)
-      : sensors(s),
-        // Initialize PID with a default config first.
-        // We apply the specific tuning in the body below to respect strict
-        // struct rules.
-        distPID(PIDConfig()), anglePID(PIDConfig()) {
-    // 1. Get Motor Devices
-    leftMotor = robot->getMotor("left wheel motor");
-    rightMotor = robot->getMotor("right wheel motor");
-
-    // 2. Configure Motors for Velocity Control
-    // Setting position to INFINITY tells Webots to ignore position limits
-    // and allow continuous rotation controlled by setVelocity().
+  void configureMotors() {
     if (leftMotor) {
       leftMotor->setPosition(INFINITY);
       leftMotor->setVelocity(0.0);
@@ -233,281 +133,290 @@ public:
       rightMotor->setPosition(INFINITY);
       rightMotor->setVelocity(0.0);
     }
-
-    // 3. Configure PID Tuning
-    // Create a custom configuration for the Drive PID
-    PIDConfig driveConfig;
-    driveConfig.Kp = 15.0; // Aggressive Proportional term for snappy response
-    driveConfig.Ki =
-        0.0; // No Integral term (avoids overshoot for simple moves)
-    driveConfig.Kd = 0.5;          // Derivative term to dampen oscillations
-    driveConfig.max_output = 6.28; // Clamp to max motor speed
-    driveConfig.min_output = -6.28;
-    driveConfig.max_integral = 5.0;
-    driveConfig.derivative_filter_alpha = 0.1;
-
-    distPID.setConfig(driveConfig);
-
-    distPID.setConfig(driveConfig);
-
-    // 4. Initial Default Profile (Parking/Safe)
-    activeKWall = 3.3;    // Default
-    PIDConfig turnConfig; // Temp default setup
-    turnConfig.Kp = 2.1;
-    turnConfig.Kd = 0.3;
-    anglePID.setConfig(turnConfig);
-
-    currentState = IDLE;
-    targetDistance = 0.0;
-    targetHeading = 0.0;
-    startEncLeft = 0.0;
-    startEncRight = 0.0;
-    timeSinceLastSnap = 0.0;
   }
 
-  // --- COMMANDS ---
+  void setupDrivePID() {
+    PIDConfig cfg;
+    cfg.Kp = 12.0; // Reduced from 15.0
+    cfg.Ki = 0.0;
+    cfg.Kd = 1.2; // Increased damping
+    cfg.max_output = MAX_SPEED;
+    cfg.min_output = -MAX_SPEED;
+    cfg.max_integral = 3.0;
+    cfg.derivative_filter_alpha = 0.3; // Better filtering
+    cfg.max_ramp_rate = 15.0;          // Smoother acceleration
+    distPID.setConfig(cfg);
+  }
 
-  // Call this ONCE to start the action
+  void setupAnglePID(bool isRotating = false, bool softStop = false) {
+    PIDConfig cfg = anglePID.getConfig(); // Keep current config as base
+
+    if (isRotating) {
+      cfg.Kp = 2.0;
+      cfg.Ki = 0.0;
+      cfg.Kd = 0.8;
+      cfg.max_ramp_rate = 15.0;
+    } else if (softStop) {
+      // Soft stop: gentle corrections
+      cfg.Kp = 0.68; // Reduced from 1.2 to prevent crash
+      cfg.Ki = 0.01;
+      cfg.Kd = 0.05; // Reduced from 0.5
+      cfg.max_ramp_rate = 10.0;
+    } else {
+      // Normal driving: strong corrections
+      cfg.Kp = 0.8;  // Increased from 0.8 for tighter control
+      cfg.Ki = 0.05; // Reduced from 0.05 to reduce weaving
+      cfg.Kd = 0.05;
+      cfg.max_ramp_rate = 15.0;
+    }
+
+    cfg.max_output = MAX_SPEED;
+    cfg.min_output = -MAX_SPEED;
+    cfg.max_integral = 2.0;
+    cfg.derivative_filter_alpha = 0.2;
+    anglePID.setConfig(cfg);
+  }
+
+  double normalizeAngle(double angle) {
+    while (angle > M_PI)
+      angle -= 2.0 * M_PI;
+    while (angle < -M_PI)
+      angle += 2.0 * M_PI;
+    return angle;
+  }
+
+  // Wall repulsion - gain changes in soft stop
+  double calculateWallCentering(double distRemaining, bool softStop) {
+    double dLeft = sensors->getDistance(5);
+    double dRight = sensors->getDistance(2);
+
+    double correction = 0.0;
+
+    // Lower gain in soft stop mode
+    double gain =
+        softStop ? 0.5 : 1.0; // REDUCED from 1.5/3.5 to prevent oscillation
+
+    // Left wall repulsion (push right when too close)
+    if (dLeft < WALL_TARGET) {
+      double intrusion = WALL_TARGET - dLeft;
+      if (intrusion > WALL_DEADZONE) {
+        correction -=
+            intrusion * gain; // FIX: Turn Right (Negative) to avoid Left Wall
+      }
+    }
+
+    // Right wall repulsion (push left when too close)
+    if (dRight < WALL_TARGET) {
+      double intrusion = WALL_TARGET - dRight;
+      if (intrusion > WALL_DEADZONE) {
+        correction +=
+            intrusion * gain; // FIX: Turn Left (Positive) to avoid Right Wall
+      }
+    }
+
+    // Allow stronger correction
+    return std::max(std::min(correction, 0.5), -0.5); // REDUCED CLAMP from 2.5
+  }
+
+  void logDebugInfo(double dt, double currentDist, double remaining,
+                    double currentYaw, double errorYaw, double angleOutput,
+                    const PIDResult &angleDebug, double wallCorrection,
+                    double leftSpeed, double rightSpeed) {
+
+    if (!debugFile.is_open())
+      return;
+
+    debugFile << std::fixed << std::setprecision(4);
+    debugFile << "--- TIMESTAMP: " << robot->getTime() << " ---" << std::endl;
+    debugFile << "State: "
+              << (currentState == DRIVING
+                      ? "DRIVING"
+                      : (currentState == ROTATING ? "ROTATING" : "IDLE"))
+              << (inSoftStopMode ? " (SoftStop)" : "") << std::endl;
+
+    debugFile << std::setprecision(5) << "Dist: " << currentDist
+              << " | Rem: " << remaining << std::endl;
+
+    debugFile << std::setprecision(4) << "Yaw: " << currentYaw
+              << " | Tgt: " << targetHeading << " | Err: " << errorYaw
+              << std::endl;
+
+    PIDConfig angleCfg = anglePID.getConfig();
+    debugFile << "AnglePID: Out=" << angleOutput << " (P=" << angleDebug.p_term
+              << " I=" << angleDebug.i_term << " D=" << angleDebug.d_term << ")"
+              << std::endl;
+
+    debugFile << "PID Config: Kp=" << angleCfg.Kp << " Ki=" << angleCfg.Ki
+              << " Kd=" << angleCfg.Kd << std::endl;
+
+    // Extra Debug Data: Raw Sensors
+    double rawLeft = sensors->getDistance(5);
+    double rawRight = sensors->getDistance(2);
+    debugFile << "WallCorr: " << wallCorrection
+              << " | RawSensors(L/R): " << rawLeft << " / " << rawRight
+              << std::endl;
+
+    debugFile << "Motors: L=" << leftSpeed << " R=" << rightSpeed << std::endl;
+    debugFile << "----------------------------------------" << std::endl;
+  }
+
+public:
+  MotionController(webots::Robot *robot, Sensor::Sensing *s)
+      : sensors(s), distPID(PIDConfig()), anglePID(PIDConfig()) {
+
+    leftMotor = robot->getMotor("left wheel motor");
+    rightMotor = robot->getMotor("right wheel motor");
+
+    configureMotors();
+    setupDrivePID();
+    setupAnglePID(false);
+
+    currentState = IDLE;
+    targetDistance = targetHeading = 0.0;
+    startEncLeft = startEncRight = 0.0;
+    stopPhaseDistance = 0.0;
+    inSoftStopMode = false;
+
+    this->robot = robot;
+    // Open Debug File (Overwrite mode)
+    debugFile.open("debug_report.txt", std::ios::out | std::ios::trunc);
+    if (debugFile.is_open()) {
+      debugFile << "=== STARTING CONTROLLER LOG ===" << std::endl;
+    }
+  }
+
+  // Destructor to close file
+  ~MotionController() {
+    if (debugFile.is_open()) {
+      debugFile << "=== END OF LOG ===" << std::endl;
+      debugFile.close();
+    }
+  }
+
   void moveForward(double meters) {
-    // 1. Reset the Brain
     distPID.reset();
-    anglePID.reset(); // Reset angle PID too to start clean
+    anglePID.reset();
+    setupAnglePID(false, false); // Start in normal driving mode
 
-    // 2. Take the Snapshot (Relative Odometry Zero)
     if (sensors) {
       startEncLeft = sensors->getLeftEncoder();
       startEncRight = sensors->getRightEncoder();
-      // Lock onto the CURRENT heading as the target
       targetHeading = sensors->getYaw();
     }
 
-    // 3. Set Targets
     targetDistance = meters;
+    stopPhaseDistance = 0.05; // Fixed 5cm soft stop zone
+    inSoftStopMode = false;
     currentState = DRIVING;
 
-    std::cout << "CMD: Moving Forward " << meters << "m, Holding Heading "
-              << targetHeading << std::endl;
+    std::cout << "Moving " << meters << "m, heading: " << targetHeading
+              << std::endl;
   }
 
-  // Rotate LEFT by N * 90 degrees
-  void turnLeft(int steps) {
+  void turnLeft(int steps = 1) {
     if (!sensors)
       return;
-    double stepSize = 1.5708; // PI/2 with 4 decimal precision
-    targetHeading = sensors->getYaw() + (steps * stepSize);
 
-    // Normalize Target immediatley to keep it clean
-    while (targetHeading > M_PI)
-      targetHeading -= 2.0 * M_PI;
-    while (targetHeading < -M_PI)
-      targetHeading += 2.0 * M_PI;
-
+    targetHeading = normalizeAngle(sensors->getYaw() + (steps * M_PI / 2.0));
     currentState = ROTATING;
+
     anglePID.reset();
+    setupAnglePID(true); // Rotation mode
 
-    // Apply Rotation Profile Immediatley
-    applyProfile(getRotationProfile());
-
-    std::cout << "CMD: Turning Left " << steps
-              << " steps. New Head: " << targetHeading << std::endl;
+    std::cout << "Turn Left " << steps << " -> " << targetHeading << std::endl;
   }
 
-  // Rotate RIGHT by N * 90 degrees
-  void turnRight(int steps) {
+  void turnRight(int steps = 1) {
     if (!sensors)
       return;
-    double stepSize = 1.5708;
-    targetHeading = sensors->getYaw() - (steps * stepSize);
 
-    while (targetHeading > M_PI)
-      targetHeading -= 2.0 * M_PI;
-    while (targetHeading < -M_PI)
-      targetHeading += 2.0 * M_PI;
-
+    targetHeading = normalizeAngle(sensors->getYaw() - (steps * M_PI / 2.0));
     currentState = ROTATING;
+
     anglePID.reset();
+    setupAnglePID(true); // Rotation mode
 
-    // Apply Rotation Profile Immediatley
-    applyProfile(getRotationProfile());
-
-    std::cout << "CMD: Turning Right " << steps
-              << " steps. New Head: " << targetHeading << std::endl;
+    std::cout << "Turn Right " << steps << " -> " << targetHeading << std::endl;
   }
 
-  // -------------------------------------------------------------------------
-  // UPDATE LOOP
-  // -------------------------------------------------------------------------
-
-  // It handles the feedback control loop: calculating error -> PID -> Motor
-  // Output.
   void update(double dt) {
-    // 0. Safety Check: Don't run if devices are missing or logic is idle.
     if (currentState == IDLE || !sensors || !leftMotor || !rightMotor)
       return;
 
-    // --- DRIVING STATE: PID Distance Control + Heading Correction ---
     if (currentState == DRIVING) {
-      // 1. Get Current Sensor Data (Odometry Read)
+      // Get current position
       double currL = sensors->getLeftEncoder();
       double currR = sensors->getRightEncoder();
-      double currentYaw = sensors->getYaw();
-
-      // 2. Calculate Distance Traveled
       double distL = (currL - startEncLeft) * WHEEL_RADIUS;
       double distR = (currR - startEncRight) * WHEEL_RADIUS;
-      double currentAvgDist = (distL + distR) / 2.0;
+      double currentDist = (distL + distR) / 2.0;
+      double remaining = targetDistance - currentDist;
 
-      // 3. Distance PID
-      PIDResult distRes = distPID.calculate(targetDistance, currentAvgDist, dt);
-      double distSpeed = distRes.output;
+      // Check if we should enter soft stop mode (remaining < 5cm)
+      if (!inSoftStopMode && remaining <= stopPhaseDistance && remaining > 0) {
+        inSoftStopMode = true;
+        // Update PID config WITHOUT resetting errors
+        setupAnglePID(false, true);
+        std::cout << "Entering soft stop mode at " << currentDist << "m"
+                  << std::endl;
+      }
 
-      // --- DYNAMIC PROFILE SWITCHING ---
-      // Update PID and Wall Gain based on current speed
-      MotionProfile prof = getDynamicProfile(distSpeed);
-      applyProfile(prof);
+      // Distance control
+      PIDResult distRes = distPID.calculate(targetDistance, currentDist, dt);
+      double baseSpeed = distRes.output;
 
-      // 4. Heading PID (Keep straight!)
-      // A. "Where are we?"
-      // A. "Where are we?"
-      // (currentYaw already defined above)
-
-      // B. "What is the error?"
-      double errorYaw = targetHeading - currentYaw;
-
-      // C. Normalize the error (The Pacman Fix)
-      // Example: Target 3.14, Current -3.14 -> Error 6.28 -> Norm 0.0
-      while (errorYaw > M_PI)
-        errorYaw -= 2.0 * M_PI;
-      while (errorYaw < -M_PI)
-        errorYaw += 2.0 * M_PI;
-
-      // D. Calculate Correction
-      // We want to drive Error to 0.
-      // PID: Target=0, Current=-errorYaw.
-      // (because PID calculates target - current -> 0 - (-error) = +error)
-      PIDResult angleRes = anglePID.calculate(0, -errorYaw, dt);
+      // Heading correction with normalized angle error
+      double currentYaw = sensors->getYaw();
+      PIDResult angleRes =
+          anglePID.calculate(targetHeading, currentYaw, dt, true);
       double turnCorrection = angleRes.output;
 
-      // --- LAYER 4: PROPORTIONAL WALL CENTERING ---
-      // "Soft Force Field" - Balances both walls simultaneously.
-
-      // --- LAYER 4: PROPORTIONAL WALL CENTERING ---
-      // "Soft Force Field" - Balances both walls simultaneously.
-
-      const double WALL_THRESH = 0.125; // 0.125m (Half of 0.25m tile)
-      // Use Dynamic Gain from Profile
-      const double K_WALL = activeKWall;
-
-      double dLeft = sensors->getDistance(5);
-      double dRight = sensors->getDistance(2);
-
-      double nudge = 0.0;
-
-      // Left Wall pushes us Right (Negative bias)
-      if (dLeft < WALL_THRESH) {
-        double push = (WALL_THRESH - dLeft); // Magnitude of danger
-        nudge -= push * K_WALL;
+      // Wall centering
+      if (remaining > 0.02) { // Active until very close to goal
+        turnCorrection += calculateWallCentering(remaining, inSoftStopMode);
       }
 
-      // Right Wall pushes us Left (Positive bias)
-      if (dRight < WALL_THRESH) {
-        double push = (WALL_THRESH - dRight);
-        nudge += push * K_WALL;
-      }
+      // Motor mixing
+      double leftSpeed =
+          std::max(std::min(baseSpeed - turnCorrection, MAX_SPEED), -MAX_SPEED);
+      double rightSpeed =
+          std::max(std::min(baseSpeed + turnCorrection, MAX_SPEED), -MAX_SPEED);
 
-      turnCorrection += nudge;
-
-      // 5. Motor Mixing
-      // Left = Base - Turn, Right = Base + Turn (or vice versa depending on
-      // sign) If Turn > 0 (Need to turn Left), Right motor speeds up.
-      double leftSpeed = distSpeed - turnCorrection;
-      double rightSpeed = distSpeed + turnCorrection;
-
-      // 6. Clamp to Max Speed (Prevent Webots Warnings)
-      double max_speed = 6.28;
-      if (leftSpeed > max_speed)
-        leftSpeed = max_speed;
-      if (leftSpeed < -max_speed)
-        leftSpeed = -max_speed;
-      if (rightSpeed > max_speed)
-        rightSpeed = max_speed;
-      if (rightSpeed < -max_speed)
-        rightSpeed = -max_speed;
-
-      // 7. Apply Command
       leftMotor->setVelocity(leftSpeed);
       rightMotor->setVelocity(rightSpeed);
 
-      // 7. Grid Snap Check (Re-enabled with Cooldown)
-      timeSinceLastSnap += dt;
-      tryGridSnap();
+      // Debug Logging
+      double errorYaw = normalizeAngle(targetHeading - currentYaw);
+      logDebugInfo(dt, currentDist, remaining, currentYaw, errorYaw,
+                   turnCorrection, angleRes, turnCorrection - angleRes.output,
+                   leftSpeed, rightSpeed);
 
-      // 8. Completion Check
-      double error = std::abs(targetDistance - currentAvgDist);
-      if (error < 0.01 && std::abs(distSpeed) < 0.1) {
+      // Completion check
+      if (std::abs(remaining) < 0.015 && std::abs(baseSpeed) < 0.5) {
         stop();
+        std::cout << "Goal reached. Final dist: " << currentDist << "m"
+                  << std::endl;
       }
     }
 
-    // --- ROTATING STATE ---
     if (currentState == ROTATING) {
       double currentYaw = sensors->getYaw();
-      double errorYaw = targetHeading - currentYaw;
 
-      while (errorYaw > M_PI)
-        errorYaw -= 2.0 * M_PI;
-      while (errorYaw < -M_PI)
-        errorYaw += 2.0 * M_PI;
-
-      // PID Correction
-      PIDResult turnRes = anglePID.calculate(0, -errorYaw, dt);
+      PIDResult turnRes =
+          anglePID.calculate(targetHeading, currentYaw, dt, true);
       double turnSpeed = turnRes.output;
 
-      // Apply (Spin in place)
       leftMotor->setVelocity(-turnSpeed);
       rightMotor->setVelocity(turnSpeed);
 
-      // Completion Check
-      if (std::abs(errorYaw) < 0.005 && std::abs(turnSpeed) < 0.1) {
+      double errorYaw = normalizeAngle(targetHeading - currentYaw);
+      if (std::abs(errorYaw) < 0.01 && std::abs(turnSpeed) < 0.3) {
         stop();
-        std::cout << "TURN COMPLETE." << std::endl;
+        std::cout << "Turn complete. Yaw: " << currentYaw << std::endl;
       }
     }
   }
 
-  // -------------------------------------------------------------------------
-  // HELPERS & PROFILES
-  // -------------------------------------------------------------------------
-
-  void applyProfile(MotionProfile p) {
-    // Update Angle PID Config
-    PIDConfig c = anglePID.getConfig();
-    c.Kp = p.Kp;
-    c.Ki = p.Ki;
-    c.Kd = p.Kd;
-    anglePID.setConfig(c);
-
-    // Update Wall Centering Gain
-    activeKWall = p.k_wall;
-  }
-
-  MotionProfile getRotationProfile() {
-    return {1.5, 0.0, 0.8, 0.0, "Rotation"};
-  }
-
-  // Returns the correct profile based on absolute speed (rad/s)
-  MotionProfile getDynamicProfile(double speed) {
-    double s = std::abs(speed);
-    if (s > 4.0)
-      return {2.1, 0.0, 0.3, 3.3, "Turbo"};
-    if (s > 2.0)
-      return {1.8, 0.0, 0.5, 2.5, "Cruise"};
-    if (s > 0.5)
-      return {1.5, 0.0, 0.8, 1.5, "Approach"};
-    return {1.0, 0.0, 0.1, 0.0, "Parking"};
-  }
-
-  // Emergency/Goal Stop: Zeroes velocity and resets state.
   void stop() {
     if (leftMotor)
       leftMotor->setVelocity(0.0);

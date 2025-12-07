@@ -7,12 +7,12 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/Roughcast.proto"
 
 WorldInfo {
+  basicTimeStep 16
 }
 Viewpoint {
-  orientation -0.37715653393491705 0.3136093877050188 0.8714368025585577 2.088381430082219
-  position 1.5914702673163674 -1.9410051899572038 0.8342694498088281
+  orientation -0.34456913357885344 0.40423559087333005 0.8472695552514606 1.7902585567976335
+  position 1.512741195999746 -2.367971019778639 1.957661874897049
   follow "e-puck"
-  followType "None"
 }
 TexturedBackground {
 }
@@ -374,12 +374,12 @@ Wall {
   size 0.01 0.5 0.1
 }
 Robot {
-  translation 1.38534 -1.38534 -0.020064
-  rotation 0 0 1 1.5708
+  translation 1.37429 -1.37429 -3.97442e-05
+  rotation 0 0 1 1.5709
   children [
     HingeJoint {
       jointParameters HingeJointParameters {
-        position -6.264218517470732e-08
+        position -4.736785355069035
         axis 0 1 0
         anchor 0 0 0.02
       }
@@ -395,8 +395,8 @@ Robot {
         }
       ]
       endPoint DEF EPUCK_LEFT_WHEEL Solid {
-        translation 0 0.02599999999999996 0.02
-        rotation 0 -1 0 3.0468044306913016
+        translation 0 0.02600000000000039 0.02
+        rotation 0 1 0 4.782780891241021
         children [
           DEF EPUCK_WHEEL Pose {
             rotation 1 0 0 -1.570796
@@ -532,7 +532,7 @@ Robot {
     }
     HingeJoint {
       jointParameters HingeJointParameters {
-        position -1.231451107703379e-07
+        position 4.7367848897109965
         axis 0 1 0
         anchor 0 0 0.02
       }
@@ -548,8 +548,8 @@ Robot {
         }
       ]
       endPoint DEF EPUCK_RIGHT_WHEEL Solid {
-        translation 0 -0.02599999999999987 0.02
-        rotation 0 -1 0 4.027711532964573
+        translation 0 -0.02599999999999985 0.02
+        rotation 0 1 0 0.709073479891532
         children [
           Pose {
             rotation 1 0 0 3.14159
@@ -1885,6 +1885,7 @@ Robot {
   controllerArgs [
     ""
   ]
+  supervisor TRUE
   cpuConsumption 1.11
   remoteControl "e-puck_bluetooth"
 }
