@@ -42,9 +42,12 @@ struct MazeConfig {
 // PID TUNING PARAMETERS
 // ============================================================================
 struct PIDParams {
-  static constexpr double DRIVE_KP = 4.0;
+  // Distance PID - higher KP for faster acceleration, higher KD to prevent
+  // overshoot
+  static constexpr double DRIVE_KP = 15.0; // Was 4.0 - now faster
   static constexpr double DRIVE_KI = 0.0;
-  static constexpr double DRIVE_KD = 1.0;
+  static constexpr double DRIVE_KD =
+      3.0; // Was 1.0 - increased to prevent overshoot
 
   // Heading correction during driving
   static constexpr double ANGLE_KP = 2.5; // Increased for better correction
@@ -285,13 +288,13 @@ private:
       speed = 6.0; // 2x speed (was 3.0)
     }
 
-    // Deceleration zones (2x faster)
-    if (remaining < 0.10)
-      speed = std::min(speed, 4.0);
-    if (remaining < 0.05)
-      speed = std::min(speed, 2.0);
-    if (remaining < 0.02)
-      speed = std::min(speed, 1.0);
+    // Deceleration zones - start earlier to compensate for higher speed
+    if (remaining < 0.15) // Was 0.10 - start braking earlier
+      speed = std::min(speed, 4.5);
+    if (remaining < 0.08) // Was 0.05
+      speed = std::min(speed, 2.5);
+    if (remaining < 0.03) // Was 0.02
+      speed = std::min(speed, 1.2);
 
     return speed;
   }
@@ -324,6 +327,31 @@ private:
                << " / " << sensors_->getDistance(7) << "\n";
     debugFile_ << "Speed: " << spd << " | Motors(L/R): " << leftSpd << " / "
                << rightSpd << "\n";
+    debugFile_ << "----------------------------------------\n";
+  }
+
+  void logRotateDebug(double yaw, double err, double turnSpd, double leftSpd,
+                      double rightSpd) {
+    if (!debugFile_.is_open())
+      return;
+
+    debugFile_ << std::fixed << std::setprecision(4);
+    debugFile_ << "--- TIMESTAMP: " << robot_->getTime() << " ---\n";
+    debugFile_ << "State: ROTATING | Phase: "
+               << (turnPhase_ == TurnPhase::Coarse ? "COARSE" : "FINE") << "\n";
+
+    debugFile_ << std::setprecision(5);
+    debugFile_ << "Yaw: " << yaw << " | Tgt: " << targetHeading_
+               << " | Err: " << err << "\n";
+    debugFile_ << "OdomYaw: " << odomHeading_
+               << " | GyroYaw: " << sensors_->getYaw() << "\n";
+    debugFile_ << "TurnSpeed: " << turnSpd
+               << " | SettleCount: " << settleCounter_ << " / "
+               << PIDParams::SETTLE_CYCLES << "\n";
+    debugFile_ << "Motors(L/R): " << leftSpd << " / " << rightSpd << "\n";
+    debugFile_ << "Sensors(L/R/F0/F7): " << sensors_->getDistance(5) << " / "
+               << sensors_->getDistance(2) << " / " << sensors_->getDistance(0)
+               << " / " << sensors_->getDistance(7) << "\n";
     debugFile_ << "----------------------------------------\n";
   }
 
@@ -519,6 +547,8 @@ public:
       }
 
       setMotors(-turnSpeed, turnSpeed);
+      logRotateDebug(fusedHeading_, headingError, turnSpeed, -turnSpeed,
+                     turnSpeed);
     }
   }
 };

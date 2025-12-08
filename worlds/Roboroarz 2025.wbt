@@ -395,7 +395,7 @@ Robot {
         }
       ]
       endPoint DEF EPUCK_LEFT_WHEEL Solid {
-        translation 0 0.02600000000000039 0.02
+        translation 0 0.02600000000000042 0.02
         rotation 0 1 0 4.782780891241021
         children [
           DEF EPUCK_WHEEL Pose {
@@ -548,8 +548,8 @@ Robot {
         }
       ]
       endPoint DEF EPUCK_RIGHT_WHEEL Solid {
-        translation 0 -0.02599999999999985 0.02
-        rotation 0 1 0 0.709073479891532
+        translation 0 -0.025999999999999843 0.02
+        rotation 0 1 0 0.7090734798915269
         children [
           Pose {
             rotation 1 0 0 3.14159
@@ -1885,7 +1885,6 @@ Robot {
   controllerArgs [
     ""
   ]
-  supervisor TRUE
   cpuConsumption 1.11
   remoteControl "e-puck_bluetooth"
 }
