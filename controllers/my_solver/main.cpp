@@ -32,31 +32,16 @@ struct Command {
 // ============================================================================
 const std::vector<Command> COMMANDS = {
     {FORWARD, 5}, // Go forward 5 tiles
-    {TURN_LEFT, 0},
-    {TURN_LEFT, 0},
-    {TURN_LEFT, 0},
-    {TURN_LEFT, 0},
-    //{TURN_RIGHT, 0},
-    //{TURN_RIGHT, 0},
-    //{TURN_RIGHT, 0},
-    //{TURN_RIGHT, 0},
-    {TURN_LEFT, 0},
-    {FORWARD, 1},
-    {TURN_RIGHT, 0},
-    {FORWARD, 1},
-    {TURN_RIGHT, 0},
-    {FORWARD, 1},
-    {TURN_LEFT, 0},
-    {FORWARD, 5},
-    {TURN_RIGHT, 0},
-    {TURN_RIGHT, 0},
-    {FORWARD, 5},
-    {TURN_RIGHT, 0},
-    {TURN_RIGHT, 0}, // Turn left 90 degrees
-                     // Add more commands here as
-                     // needed, e.g.: {FORWARD,
-                     // 3}, {TURN_RIGHT, 0},
-                     // {FORWARD, 2},
+
+    {TURN_LEFT, 0},  {FORWARD, 1},    {TURN_RIGHT, 0}, {FORWARD, 1},
+    {TURN_RIGHT, 0}, {FORWARD, 1},    {TURN_LEFT, 0},  {FORWARD, 5},
+    {TURN_RIGHT, 0}, {TURN_RIGHT, 0}, {FORWARD, 5},    {TURN_RIGHT, 0},
+    {FORWARD, 1},    {TURN_RIGHT, 0}, {FORWARD, 1},
+    // Turn left 90 degrees
+    // Add more commands here as
+    // needed, e.g.: {FORWARD,
+    // 3}, {TURN_RIGHT, 0},
+    // {FORWARD, 2},
 };
 
 // ============================================================================

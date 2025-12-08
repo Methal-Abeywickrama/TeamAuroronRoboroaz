@@ -57,9 +57,14 @@ struct PIDParams {
   static constexpr double ANGLE_MAX_CORRECT = 1.5;
 
   // End-of-drive fine alignment (corrects accumulated drift)
+  // Note: At 10ms timestep, encoder quantization is ~0.015 rad, so tolerance
+  // must be >= this
   static constexpr double DRIVE_FINE_TOLERANCE =
-      0.0010; // 0.001 rad = ~0.06 deg
-  static constexpr int DRIVE_SETTLE_CYCLES = 3;
+      0.0200; // 0.02 rad = ~1.15 deg (above encoder quantization)
+  static constexpr double DRIVE_SETTLE_TIME =
+      0.048; // 48ms settle time (timestep-independent)
+  static constexpr double DRIVE_MAX_ALIGN_TIME =
+      1.0; // Max 1 second for fine alignment
 
   // Coarse turn phase (fast)
   static constexpr double ROT_KP = 1.5;
@@ -75,10 +80,17 @@ struct PIDParams {
       0.0300; // Switch to fine phase at ~1.7 degrees
   static constexpr double FINE_TOLERANCE =
       0.0010; // Complete at 0.001 rad = ~0.06 degrees
-  static constexpr int SETTLE_CYCLES = 5; // Must be stable for 5 cycles
+  static constexpr double SETTLE_TIME =
+      0.080; // 80ms settle time (timestep-independent)
+
+  // Wall correction rate limit (rad/s) - timestep-independent
+  static constexpr double WALL_CORRECT_RATE = 3.0;
 
   static constexpr double WALL_GAIN = 3.0;
+  static constexpr double WALL_KI =
+      5.0; // Increased to 5.0 to eliminate steady-state drift
   static constexpr double WALL_MAX_CORRECT = 0.8;
+  static constexpr double WALL_INT_MAX = 0.3; // Anti-windup limit
 };
 
 // ============================================================================
@@ -171,9 +183,10 @@ private:
   DriveMode driveMode_ = DriveMode::Normal;
   TurnPhase turnPhase_ = TurnPhase::Coarse;
   DrivePhase drivePhase_ = DrivePhase::Moving;
-  int settleCounter_ = 0; // Count stable cycles for turn settling
-  int driveSettleCounter_ =
-      0; // Count stable cycles for drive heading alignment
+  double settleTime_ = 0.0; // Accumulated settle time for turn settling
+  double driveSettleTime_ =
+      0.0; // Accumulated settle time for drive heading alignment
+  double driveAlignTime_ = 0.0; // Total time spent in fine alignment phase
 
   double targetDist_ = 0.0;
   double targetHeading_ = 0.0;
@@ -182,7 +195,7 @@ private:
 
   double fusedHeading_ = MazeConfig::INITIAL_HEADING;
   double odomHeading_ = MazeConfig::INITIAL_HEADING;
-  double prevGyroYaw_ = 0.0;
+
   double lastEncL_ = 0.0;
   double lastEncR_ = 0.0;
   bool headingInitialized_ = false;
@@ -190,6 +203,7 @@ private:
 
   // Wall correction smoothing - prevents jerk at wall transitions
   double prevWallCorrection_ = 0.0;
+  double wallIntegral_ = 0.0; // Integral term for wall correction
 
   double normalizeAngle(double angle) {
     while (angle > M_PI)
@@ -232,7 +246,8 @@ private:
     lastEncR_ = encR;
 
     if (state_ == State::Rotating) {
-      // During rotation: apply slip factor (wheels slip, less actual rotation)
+      // During rotation: apply slip factor (wheels slip, less actual
+      // rotation)
       deltaOdom *= MazeConfig::TURN_SLIP_FACTOR;
       odomHeading_ = normalizeAngle(odomHeading_ + deltaOdom);
     } else {
@@ -259,7 +274,7 @@ private:
     return std::min(sensors_->getDistance(0), sensors_->getDistance(7));
   }
 
-  double getWallCorrection() {
+  double getWallCorrection(double dt) {
     if (!sensors_)
       return 0.0;
 
@@ -269,11 +284,27 @@ private:
 
     if (dL < 0.15 && dR < 0.15) {
       double error = (dL - dR) / 2.0;
-      rawCorrection = error * PIDParams::WALL_GAIN;
+
+      // Update integral term for drift elimination
+      wallIntegral_ += error * dt;
+      // Anti-windup
+      wallIntegral_ =
+          std::max(-PIDParams::WALL_INT_MAX,
+                   std::min(PIDParams::WALL_INT_MAX, wallIntegral_));
+
+      rawCorrection =
+          (error * PIDParams::WALL_GAIN) + (wallIntegral_ * PIDParams::WALL_KI);
     } else if (dL < MazeConfig::WALL_CLEARANCE) {
+      // Clear integral when not in two-wall corridor
+      wallIntegral_ = 0.0;
       rawCorrection = -(MazeConfig::WALL_CLEARANCE - dL) * PIDParams::WALL_GAIN;
     } else if (dR < MazeConfig::WALL_CLEARANCE) {
+      // Clear integral when not in two-wall corridor
+      wallIntegral_ = 0.0;
       rawCorrection = (MazeConfig::WALL_CLEARANCE - dR) * PIDParams::WALL_GAIN;
+    } else {
+      // Clear integral when no walls
+      wallIntegral_ = 0.0;
     }
 
     // Clamp raw correction to limits
@@ -281,13 +312,13 @@ private:
         std::max(-PIDParams::WALL_MAX_CORRECT,
                  std::min(PIDParams::WALL_MAX_CORRECT, rawCorrection));
 
-    // Transition-only smoothing: only rate-limit when a large jump occurs
-    // This prevents jerk at wall transitions while preserving full
-    // responsiveness
+    // Transition-only smoothing: timestep-independent rate limiting
+    // Limits change to WALL_CORRECT_RATE rad/s when large jumps occur
     double change = rawCorrection - prevWallCorrection_;
+    double maxChange =
+        PIDParams::WALL_CORRECT_RATE * dt; // Timestep-independent
     if (std::abs(change) > 0.05) {
-      // Large transition detected - limit change to max 0.03 per step
-      constexpr double maxChange = 0.03;
+      // Large transition detected - apply rate limit
       if (change > maxChange) {
         rawCorrection = prevWallCorrection_ + maxChange;
       } else if (change < -maxChange) {
@@ -322,7 +353,8 @@ private:
   }
 
   void logDebug(double dist, double rem, double yaw, double err, double turn,
-                double wall, double spd, double leftSpd, double rightSpd) {
+                double wall, double wallInt, double spd, double leftSpd,
+                double rightSpd) {
     if (!debugFile_.is_open())
       return;
 
@@ -343,7 +375,8 @@ private:
                << " | Err: " << err << "\n";
     debugFile_ << "OdomYaw: " << odomHeading_
                << " | GyroYaw: " << sensors_->getYaw() << "\n";
-    debugFile_ << "TurnCorr: " << turn << " | WallCorr: " << wall << "\n";
+    debugFile_ << "TurnCorr: " << turn << " | WallCorr: " << wall
+               << " | WallInt: " << wallInt << "\n";
     debugFile_ << "Sensors(L/R/F0/F7): " << sensors_->getDistance(5) << " / "
                << sensors_->getDistance(2) << " / " << sensors_->getDistance(0)
                << " / " << sensors_->getDistance(7) << "\n";
@@ -367,9 +400,8 @@ private:
                << " | Err: " << err << "\n";
     debugFile_ << "OdomYaw: " << odomHeading_
                << " | GyroYaw: " << sensors_->getYaw() << "\n";
-    debugFile_ << "TurnSpeed: " << turnSpd
-               << " | SettleCount: " << settleCounter_ << " / "
-               << PIDParams::SETTLE_CYCLES << "\n";
+    debugFile_ << "TurnSpeed: " << turnSpd << " | SettleTime: " << settleTime_
+               << " / " << PIDParams::SETTLE_TIME << "s\n";
     debugFile_ << "Motors(L/R): " << leftSpd << " / " << rightSpd << "\n";
     debugFile_ << "Sensors(L/R/F0/F7): " << sensors_->getDistance(5) << " / "
                << sensors_->getDistance(2) << " / " << sensors_->getDistance(0)
@@ -431,9 +463,11 @@ public:
     }
 
     drivePhase_ = DrivePhase::Moving;
-    driveSettleCounter_ = 0;
+    driveSettleTime_ = 0.0;
     distPID_.reset();
     anglePID_.reset();
+    prevWallCorrection_ = 0.0;
+    wallIntegral_ = 0.0;
 
     std::cout << "MOVE: " << meters << "m @ heading " << targetHeading_
               << std::endl;
@@ -445,7 +479,7 @@ public:
   void rotate(double radians) {
     state_ = State::Rotating;
     turnPhase_ = TurnPhase::Coarse; // Start with fast coarse phase
-    settleCounter_ = 0;
+    settleTime_ = 0.0;
     targetHeading_ = normalizeAngle(fusedHeading_ + radians);
     rotPID_.reset();
     fineRotPID_.reset();
@@ -491,7 +525,7 @@ public:
 
         double wallCorrection = 0.0;
         if (remaining > 0.03) {
-          wallCorrection = getWallCorrection();
+          wallCorrection = getWallCorrection(dt);
         }
 
         double totalTurn = turnCorrection + wallCorrection;
@@ -500,34 +534,43 @@ public:
         setMotors(leftSpeed, rightSpeed);
 
         logDebug(currentDist, remaining, fusedHeading_, headingError,
-                 turnCorrection, wallCorrection, speedCmd, leftSpeed,
-                 rightSpeed);
+                 turnCorrection, wallCorrection, wallIntegral_, speedCmd,
+                 leftSpeed, rightSpeed);
 
         // Check if distance target reached - switch to fine alignment
         if (std::abs(remaining) < 0.005) {
           setMotors(0.0, 0.0);
           drivePhase_ = DrivePhase::FineAlign;
-          driveSettleCounter_ = 0;
+          driveSettleTime_ = 0.0;
+          driveAlignTime_ = 0.0; // Reset alignment timer
           fineRotPID_.reset();
           std::cout << "DRIVE: Switching to FINE heading alignment (err="
                     << headingError << ")" << std::endl;
         }
       } else {
         // Fine alignment phase - correct heading drift at end
+        driveAlignTime_ += dt; // Track total alignment time
         double turnSpeed = fineRotPID_.compute(headingError, dt);
         turnSpeed = std::max(-0.5, std::min(0.5, turnSpeed));
         setMotors(-turnSpeed, turnSpeed);
 
-        if (std::abs(headingError) < PIDParams::DRIVE_FINE_TOLERANCE) {
-          driveSettleCounter_++;
-          if (driveSettleCounter_ >= PIDParams::DRIVE_SETTLE_CYCLES) {
+        // Check for timeout - prevents infinite alignment loops at low
+        // timesteps
+        if (driveAlignTime_ >= PIDParams::DRIVE_MAX_ALIGN_TIME) {
+          stop();
+          std::cout << "ARRIVED: dist=" << currentDist << "m yaw=" << std::fixed
+                    << std::setprecision(5) << fusedHeading_
+                    << " (timeout, err=" << headingError << ")" << std::endl;
+        } else if (std::abs(headingError) < PIDParams::DRIVE_FINE_TOLERANCE) {
+          driveSettleTime_ += dt; // Accumulate settle time
+          if (driveSettleTime_ >= PIDParams::DRIVE_SETTLE_TIME) {
             stop();
             std::cout << "ARRIVED: dist=" << currentDist
                       << "m yaw=" << std::fixed << std::setprecision(5)
                       << fusedHeading_ << " (aligned)" << std::endl;
           }
         } else {
-          driveSettleCounter_ = 0;
+          driveSettleTime_ = 0.0; // Reset if out of tolerance
         }
       }
     } else if (state_ == State::Rotating) {
@@ -543,7 +586,7 @@ public:
         if (std::abs(headingError) < PIDParams::FINE_THRESHOLD) {
           turnPhase_ = TurnPhase::Fine;
           fineRotPID_.reset();
-          settleCounter_ = 0;
+          settleTime_ = 0.0;
           std::cout << "TURN: Switching to FINE alignment (err=" << headingError
                     << ")" << std::endl;
         }
@@ -554,8 +597,8 @@ public:
 
         // Check if within final tolerance
         if (std::abs(headingError) < PIDParams::FINE_TOLERANCE) {
-          settleCounter_++;
-          if (settleCounter_ >= PIDParams::SETTLE_CYCLES) {
+          settleTime_ += dt; // Accumulate settle time
+          if (settleTime_ >= PIDParams::SETTLE_TIME) {
             stop();
             std::cout << "TURN COMPLETE: yaw=" << std::fixed
                       << std::setprecision(5) << fusedHeading_
@@ -564,7 +607,7 @@ public:
             return;
           }
         } else {
-          settleCounter_ = 0;
+          settleTime_ = 0.0; // Reset if out of tolerance
         }
       }
 
