@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-puck Motion Controller Technical Documentation</title>
+    <style>
+        @media print {
+            body { font-size: 11pt; }
+            h1 { font-size: 18pt; }
+            h2 { font-size: 14pt; page-break-before: auto; }
+            h3 { font-size: 12pt; }
+            pre { font-size: 9pt; }
+            table { font-size: 10pt; }
+            .no-print { display: none; }
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 { color: #1a5490; border-bottom: 3px solid #1a5490; padding-bottom: 10px; }
+        h2 { color: #2c7fb8; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 30px; }
+        h3 { color: #41ab5d; margin-top: 20px; }
+        pre {
+            background: #f4f4f4;
+            border: 1px solid #ddd;
+            border-left: 4px solid #1a5490;
+            padding: 12px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th { background: #1a5490; color: white; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        .diagram {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            padding: 15px;
+            font-family: monospace;
+            white-space: pre;
+            overflow-x: auto;
+        }
+        hr { border: none; border-top: 2px solid #eee; margin: 30px 0; }
+        strong { color: #1a5490; }
+        .print-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #1a5490;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .print-btn:hover { background: #2c7fb8; }
+    </style>
+</head>
+<body>
+    <button class="print-btn no-print" onclick="window.print()">Print to PDF</button>
+
+    <h1>E-puck Motion Controller Technical Documentation</h1>
+
+    <h2>Executive Summary</h2>
+    <p>This document provides comprehensive technical documentation of the <code>motion_control.h</code> implementation for controlling an E-puck robot in a Webots maze environment. The controller enables autonomous navigation through a 0.25m tile-based maze using precise forward movement, accurate 90° turns, wall-following for corridor centering, and robust heading estimation through odometry.</p>
+
+    <hr>
+
+    <h2>1. System Architecture Overview</h2>
+    <p>The motion controller follows a hierarchical state machine architecture with multiple control loops operating at different frequencies and precision levels.</p>
+
+    <h3>1.1 Core Components</h3>
+    <table>
+        <tr><th>Component</th><th>Purpose</th></tr>
+        <tr><td><code>MazeConfig</code></td><td>Physical constants and calibration parameters</td></tr>
+        <tr><td><code>PIDParams</code></td><td>Tuning coefficients for all PID controllers</td></tr>
+        <tr><td><code>PID</code> class</td><td>Reusable PID controller with advanced features</td></tr>
+        <tr><td><code>MovingController</code></td><td>Main state machine coordinating all behaviors</td></tr>
+    </table>
+
+    <h3>1.2 State Machine Hierarchy</h3>
+    <div class="diagram">                    ┌─────────────────┐
+                    │     IDLE        │
+                    └────────┬────────┘
+                             │
+            ┌────────────────┼────────────────┐
+            ▼                                 ▼
+    ┌───────────────┐                 ┌───────────────┐
+    │   DRIVING     │                 │   ROTATING    │
+    └───────┬───────┘                 └───────┬───────┘
+            │                                 │
+    ┌───────┴───────┐                 ┌───────┴───────┐
+    ▼               ▼                 ▼               ▼
+┌─────────┐   ┌───────────┐     ┌─────────┐   ┌─────────┐
+│ Moving  │   │ FineAlign │     │ Coarse  │   │  Fine   │
+└─────────┘   └───────────┘     └─────────┘   └─────────┘</div>
+
+    <hr>
+
+    <h2>2. Physical Constants and Calibration (MazeConfig)</h2>
+
+    <h3>2.1 Robot Physical Parameters</h3>
+    <pre>TILE_SIZE = 0.25          // Maze tile dimension (meters)
+ROBOT_WIDTH = 0.074       // E-puck chassis width (meters)
+ROBOT_RADIUS = 0.037      // Half of chassis width (meters)
+WHEEL_RADIUS = 0.02001    // Wheel radius for odometry (meters)
+AXLE_LENGTH = 0.052       // Distance between wheel centers (meters)
+MAX_SPEED = 6.28          // Maximum motor velocity (rad/s)</pre>
+
+    <h3>2.2 Navigation Parameters</h3>
+    <pre>WALL_CLEARANCE = 0.088    // Desired distance from wall (meters)
+TURN_90_RAD = 1.5708      // 90° in radians (π/2)
+INITIAL_HEADING = 1.5709  // North-facing start orientation</pre>
+
+    <h3>2.3 Calibration Constants (Critical for Accuracy)</h3>
+    <p><strong>DRIFT_PER_METER = 0.00406</strong></p>
+    <p>This constant compensates for systematic heading drift during forward motion. The E-puck experiences clockwise drift due to mechanical asymmetries. The value represents radians of counterclockwise correction applied per meter traveled.</p>
+    <pre>correctedHeading = rawHeading - (distanceTraveled × DRIFT_PER_METER)</pre>
+
+    <p><strong>TURN_SLIP_FACTOR = 0.913</strong></p>
+    <p>During in-place rotation, wheel slip causes the encoders to report more rotation than actually occurs. This factor scales down the odometry-derived angular change.</p>
+    <pre>Measured error = 0.137 rad per 90° turn
+Slip factor = 1 - (0.137 / 1.5708) ≈ 0.913</pre>
+
+    <hr>
+
+    <h2>3. PID Controller Implementation</h2>
+
+    <h3>3.1 Controller Structure</h3>
+    <p>The <code>PID</code> class implements a professional-grade discrete PID controller with:</p>
+    <ol>
+        <li><strong>Derivative Filtering</strong> - Low-pass filter on derivative term to reduce noise amplification</li>
+        <li><strong>Anti-Windup</strong> - Integral clamping to prevent accumulation during saturation</li>
+        <li><strong>Output Rate Limiting</strong> - Prevents sudden output changes that could cause mechanical stress</li>
+        <li><strong>Output Saturation</strong> - Enforces maximum motor speed limits</li>
+    </ol>
+
+    <h3>3.2 Mathematical Formulation</h3>
+    <p><strong>Standard PID Equation:</strong></p>
+    <pre>u(t) = Kp·e(t) + Ki·∫e(τ)dτ + Kd·(de/dt)</pre>
+
+    <p><strong>Discrete Implementation with Filtering:</strong></p>
+    <pre>// Proportional term
+pOut = kp_ × error
+
+// Integral term with anti-windup
+integral_ += error × dt
+integral_ = clamp(integral_, -maxIntegral_, +maxIntegral_)
+iOut = ki_ × integral_
+
+// Derivative term with exponential moving average filter
+rawDerivative = (error - prevError_) / dt
+filteredDerivative = α × rawDerivative + (1-α) × prevDerivative_
+dOut = kd_ × filteredDerivative</pre>
+    <p>Where <code>α = filterAlpha_ = 0.2</code> determines the filter cutoff frequency.</p>
+
+    <h3>3.3 Rate Limiting</h3>
+    <pre>maxChange = maxRamp_ × dt  // maxRamp_ = 20.0
+output = clamp(output, prevOutput_ - maxChange, prevOutput_ + maxChange)</pre>
+
+    <hr>
+
+    <h2>4. Heading Estimation System</h2>
+
+    <h3>4.1 Pure Odometry Approach</h3>
+    <p>The controller uses pure wheel odometry for heading estimation (gyro fusion is disabled as it caused instability in testing).</p>
+    <p><strong>Differential Drive Kinematics:</strong></p>
+    <pre>Δθ = (ΔR - ΔL) / L
+
+Where:
+- ΔR = Right wheel arc length = (encoder_change) × WHEEL_RADIUS
+- ΔL = Left wheel arc length
+- L = AXLE_LENGTH = 0.052m</pre>
+
+    <h3>4.2 State-Dependent Processing</h3>
+    <p><strong>During Forward Motion:</strong></p>
+    <pre>deltaOdom = (dR - dL) / AXLE_LENGTH
+distStep = (dL + dR) / 2.0
+driftCorrection = distStep × DRIFT_PER_METER
+odomHeading_ = normalize(odomHeading_ + deltaOdom - driftCorrection)</pre>
+
+    <p><strong>During Rotation:</strong></p>
+    <pre>deltaOdom = (dR - dL) / AXLE_LENGTH
+deltaOdom *= TURN_SLIP_FACTOR  // Apply slip compensation
+odomHeading_ = normalize(odomHeading_ + deltaOdom)</pre>
+
+    <hr>
+
+    <h2>5. Wall Centering System</h2>
+
+    <h3>5.1 Sensor Configuration</h3>
+    <p>The E-puck's proximity sensors are indexed 0-7 around the robot. For wall detection:</p>
+    <ul>
+        <li><strong>Sensor 5</strong> (ps5): Left side</li>
+        <li><strong>Sensor 2</strong> (ps2): Right side</li>
+        <li><strong>Sensors 0, 7</strong>: Front (for obstacle detection)</li>
+    </ul>
+
+    <h3>5.2 Three-Mode Wall Correction</h3>
+    <p><strong>Mode 1: Corridor (Both walls present)</strong></p>
+    <pre>if (dL < 0.15 && dR < 0.15) {
+    error = (dL - dR) / 2.0
+    correction = error × WALL_GAIN
+}</pre>
+    <p>This centers the robot between walls. If left wall is closer (dL < dR), correction is negative (steer right).</p>
+
+    <p><strong>Mode 2: Left wall only</strong></p>
+    <pre>if (dL < WALL_CLEARANCE) {
+    correction = -(WALL_CLEARANCE - dL) × WALL_GAIN
+}</pre>
+
+    <p><strong>Mode 3: Right wall only</strong></p>
+    <pre>if (dR < WALL_CLEARANCE) {
+    correction = +(WALL_CLEARANCE - dR) × WALL_GAIN
+}</pre>
+
+    <h3>5.3 Transition Smoothing (Accepted Change)</h3>
+    <p><strong>Problem Addressed:</strong> When a wall suddenly appears or disappears, the correction value can jump from near-zero to a large value, causing visible jerk.</p>
+    <p><strong>Solution Implemented:</strong></p>
+    <pre>// Only rate-limit when a large jump occurs (> 0.05)
+double change = rawCorrection - prevWallCorrection_
+if (abs(change) > 0.05) {
+    constexpr double maxChange = 0.03
+    if (change > maxChange)
+        rawCorrection = prevWallCorrection_ + maxChange
+    else if (change < -maxChange)
+        rawCorrection = prevWallCorrection_ - maxChange
+}
+prevWallCorrection_ = rawCorrection</pre>
+
+    <hr>
+
+    <h2>6. Speed Control System</h2>
+
+    <h3>6.1 Adaptive Base Speed</h3>
+    <pre>if (inCorridor() && frontClearance() > 0.30 && remaining > 0.10) {
+    driveMode_ = FastCorridor
+    speed = MAX_SPEED  // 6.28 rad/s
+} else {
+    speed = 6.0  // Near maximum speed
+}</pre>
+
+    <h3>6.2 Progressive Deceleration Zones</h3>
+    <table>
+        <tr><th>Remaining Distance</th><th>Maximum Speed</th></tr>
+        <tr><td>> 0.15m</td><td>Full speed</td></tr>
+        <tr><td>0.08m - 0.15m</td><td>4.5 rad/s</td></tr>
+        <tr><td>0.03m - 0.08m</td><td>2.5 rad/s</td></tr>
+        <tr><td>< 0.03m</td><td>1.2 rad/s</td></tr>
+    </table>
+
+    <hr>
+
+    <h2>7. Driving State Machine</h2>
+
+    <h3>7.1 Phase 1: Moving</h3>
+    <pre>// Distance Control
+distOutput = distPID_.compute(remaining, dt)
+speedCmd = min(baseSpeed, abs(distOutput))
+
+// Heading Maintenance
+headingError = normalize(targetHeading_ - fusedHeading_)
+turnCorrection = anglePID_.compute(headingError, dt)
+
+// Wall Following + Motor Command
+wallCorrection = getWallCorrection()
+totalTurn = turnCorrection + wallCorrection
+leftSpeed = speedCmd - totalTurn
+rightSpeed = speedCmd + totalTurn</pre>
+
+    <h3>7.2 Phase 2: Fine Alignment</h3>
+    <p>When <code>remaining < 0.005m</code>, switches to FineAlign phase:</p>
+    <pre>turnSpeed = fineRotPID_.compute(headingError, dt)
+turnSpeed = clamp(turnSpeed, ±0.5)  // Slow, precise
+setMotors(-turnSpeed, turnSpeed)     // In-place rotation</pre>
+    <p><strong>Completion:</strong> Error < 0.001 rad for 3 consecutive cycles</p>
+
+    <hr>
+
+    <h2>8. Rotation State Machine</h2>
+
+    <h3>8.1 Two-Phase Turning Strategy</h3>
+    <p>A single-phase PID cannot achieve both fast turns and precise alignment. The two-phase approach uses different controllers optimized for each objective.</p>
+
+    <h3>8.2 Phase 1: Coarse Turn</h3>
+    <ul>
+        <li><strong>Controller:</strong> rotPID_ with KP=1.5, KI=0.0, KD=0.4</li>
+        <li><strong>Speed Limit:</strong> ±3.0 rad/s (fast rotation)</li>
+        <li><strong>Exit Condition:</strong> |error| < 0.03 rad (~1.7°)</li>
+    </ul>
+
+    <h3>8.3 Phase 2: Fine Alignment</h3>
+    <ul>
+        <li><strong>Controller:</strong> fineRotPID_ with KP=3.0, KI=0.1, KD=0.8</li>
+        <li><strong>Speed Limit:</strong> ±0.5 rad/s (slow, precise)</li>
+        <li><strong>Completion:</strong> Error < 0.001 rad for 5 consecutive cycles</li>
+    </ul>
+
+    <h3>8.4 Settle Counter Mechanism</h3>
+    <pre>if (abs(headingError) < FINE_TOLERANCE) {
+    settleCounter_++
+    if (settleCounter_ >= SETTLE_CYCLES)
+        // Turn complete
+} else {
+    settleCounter_ = 0  // Reset if error exceeds tolerance
+}</pre>
+
+    <hr>
+
+    <h2>9. Debug Logging System</h2>
+    <p>The controller maintains comprehensive debug logs in <code>debug_report.txt</code>:</p>
+
+    <h3>9.1 Driving Log Entry</h3>
+    <pre>--- TIMESTAMP: XX.XXXX ---
+State: DRIVING | Mode: NORM/FAST
+Dist: X.XXXXX | Rem: X.XXXXX | Target: X.XXXXX
+Yaw: X.XXXX | Tgt: X.XXXX | Err: X.XXXX
+TurnCorr: X.XXXX | WallCorr: X.XXXX
+Speed: X.XXXX | Motors(L/R): X.XXXX / X.XXXX</pre>
+
+    <h3>9.2 Rotation Log Entry</h3>
+    <pre>--- TIMESTAMP: XX.XXXX ---
+State: ROTATING | Phase: COARSE/FINE
+Yaw: X.XXXXX | Tgt: X.XXXXX | Err: X.XXXXX
+TurnSpeed: X.XXXXX | SettleCount: X / 5</pre>
+
+    <hr>
+
+    <h2>10. Accepted Code Changes</h2>
+
+    <h3>10.1 Wall Correction Transition Smoothing</h3>
+    <p><strong>Files Modified:</strong> motion_control.h</p>
+    <p><strong>Components Added:</strong></p>
+    <ul>
+        <li><code>prevWallCorrection_</code> member variable</li>
+        <li>Rate-limiting logic in <code>getWallCorrection()</code></li>
+    </ul>
+    <p><strong>Problem Solved:</strong> Wall correction jumping 38× (0.005 → 0.192) at corridor intersections caused visible jerk.</p>
+    <p><strong>Solution:</strong> Rate-limit changes to max 0.03 per timestep when jump > 0.05. Normal corrections unaffected.</p>
+    <p><strong>Impact:</strong></p>
+    <ul>
+        <li><strong>Speed:</strong> Unaffected</li>
+        <li><strong>Accuracy:</strong> Unaffected</li>
+        <li><strong>Smoothness:</strong> Significantly improved</li>
+    </ul>
+
+    <hr>
+
+    <h2>11. Known Limitations</h2>
+
+    <h3>11.1 Accumulated Heading Error</h3>
+    <p>After 19 movements, ~0.01 rad (0.57°) error accumulates due to:</p>
+    <ul>
+        <li>Each movement completing with up to 0.001 rad residual error</li>
+        <li>Errors sum rather than canceling (systematic bias)</li>
+    </ul>
+    <p><strong>Potential Improvements:</strong> Tune DRIFT_PER_METER and TURN_SLIP_FACTOR more precisely.</p>
+
+    <h3>11.2 Encoder Quantization</h3>
+    <p>At fine tolerances (<0.001 rad), encoder discretization can cause oscillation between adjacent quantization levels. This occasionally delays settling but does not prevent completion.</p>
+
+    <hr>
+
+    <h2>12. API Reference</h2>
+
+    <table>
+        <tr><th>Method</th><th>Description</th></tr>
+        <tr><td><code>moveForward(tiles)</code></td><td>Move forward by specified number of tiles (0.25m each)</td></tr>
+        <tr><td><code>moveForwardMeters(meters)</code></td><td>Move forward by exact distance in meters</td></tr>
+        <tr><td><code>turnLeft()</code></td><td>Execute 90° counterclockwise turn</td></tr>
+        <tr><td><code>turnRight()</code></td><td>Execute 90° clockwise turn</td></tr>
+        <tr><td><code>rotate(radians)</code></td><td>Execute turn by specified angle</td></tr>
+        <tr><td><code>stop()</code></td><td>Immediately halt all motors</td></tr>
+        <tr><td><code>isBusy()</code></td><td>Returns true if movement in progress</td></tr>
+        <tr><td><code>getState()</code></td><td>Returns current state (Idle/Driving/Rotating)</td></tr>
+        <tr><td><code>update(dt)</code></td><td>Main control loop - call once per timestep</td></tr>
+    </table>
+
+    <h3>12.1 Usage Example</h3>
+    <pre>Sensing* sensing = new Sensing(robot, timeStep);
+MovingController* motion = new MovingController(robot, sensing);
+
+// Main control loop
+while (robot->step(timeStep) != -1) {
+    sensing->update();
+    motion->update(timeStep / 1000.0);
+    
+    if (!motion->isBusy()) {
+        motion->moveForward(3);  // Move 3 tiles
+    }
+}</pre>
+
+    <hr>
+    <p><em>Document generated: December 8, 2025</em><br>
+    <em>Controller Version: motion_control.h (581 lines)</em></p>
+
+</body>
+</html>

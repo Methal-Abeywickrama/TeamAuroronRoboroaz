@@ -188,6 +188,9 @@ private:
   bool headingInitialized_ = false;
   static constexpr double FUSION_ALPHA = 0.1;
 
+  // Wall correction smoothing - prevents jerk at wall transitions
+  double prevWallCorrection_ = 0.0;
+
   double normalizeAngle(double angle) {
     while (angle > M_PI)
       angle -= 2.0 * M_PI;
@@ -262,19 +265,38 @@ private:
 
     double dL = sensors_->getDistance(5);
     double dR = sensors_->getDistance(2);
-    double correction = 0.0;
+    double rawCorrection = 0.0;
 
     if (dL < 0.15 && dR < 0.15) {
       double error = (dL - dR) / 2.0;
-      correction = error * PIDParams::WALL_GAIN;
+      rawCorrection = error * PIDParams::WALL_GAIN;
     } else if (dL < MazeConfig::WALL_CLEARANCE) {
-      correction = -(MazeConfig::WALL_CLEARANCE - dL) * PIDParams::WALL_GAIN;
+      rawCorrection = -(MazeConfig::WALL_CLEARANCE - dL) * PIDParams::WALL_GAIN;
     } else if (dR < MazeConfig::WALL_CLEARANCE) {
-      correction = (MazeConfig::WALL_CLEARANCE - dR) * PIDParams::WALL_GAIN;
+      rawCorrection = (MazeConfig::WALL_CLEARANCE - dR) * PIDParams::WALL_GAIN;
     }
 
-    return std::max(-PIDParams::WALL_MAX_CORRECT,
-                    std::min(PIDParams::WALL_MAX_CORRECT, correction));
+    // Clamp raw correction to limits
+    rawCorrection =
+        std::max(-PIDParams::WALL_MAX_CORRECT,
+                 std::min(PIDParams::WALL_MAX_CORRECT, rawCorrection));
+
+    // Transition-only smoothing: only rate-limit when a large jump occurs
+    // This prevents jerk at wall transitions while preserving full
+    // responsiveness
+    double change = rawCorrection - prevWallCorrection_;
+    if (std::abs(change) > 0.05) {
+      // Large transition detected - limit change to max 0.03 per step
+      constexpr double maxChange = 0.03;
+      if (change > maxChange) {
+        rawCorrection = prevWallCorrection_ + maxChange;
+      } else if (change < -maxChange) {
+        rawCorrection = prevWallCorrection_ - maxChange;
+      }
+    }
+
+    prevWallCorrection_ = rawCorrection;
+    return rawCorrection;
   }
 
   double computeBaseSpeed(double remaining) {
