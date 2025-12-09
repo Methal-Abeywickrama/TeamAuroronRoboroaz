@@ -1,10 +1,9 @@
-
 #include <iostream>
 #include <webots/Robot.hpp>
 
 #include "motion_control.h"
 #include "sensing.h"
-#include "PIDautotuner.h"
+#include "pid_autotuner.h"
 #include "navigator.h"
 
 #define TIME_STEP 16
@@ -61,22 +60,67 @@ int main(int argc, char **argv) {
 
   bool hasTurned = false; // Simple flag to chain commands in this basic harness
 
+  RelayTuner tuner(0.0, 2.0);
+  
+  double currentTime = 0.0;
+  tuner.start(currentTime);
+
+  // --- INSERTED: Blocking Tuning Loop ---
+  std::cout << "Status: Auto-Tuning in Progress..." << std::endl;
+  while (!tuner.isFinished() && robot->step(timeStep) != -1) {
+      // Update sensors to get fresh Gyro data
+      sensing->update();
+      
+      // Get current heading (Target is 0.0)
+      double currentAngle = sensing->getYaw();
+      
+      // Run Tuner Step
+      double motorCmd = tuner.runStep(currentAngle, currentTime);
+      
+      // Apply Relay Output directly to motors (Override MotionController)
+      // To correct a positive angle (Left), we turn Right (Left Motor Fwd, Right Back)
+      // Note: Check signs depending on your specific gyro orientation
+      robot->getMotor("left wheel motor")->setVelocity(-motorCmd);
+      robot->getMotor("right wheel motor")->setVelocity(motorCmd);
+      
+      // Increment time
+      currentTime += (timeStep / 1000.0);
+  }
+  
+  // Stop motors after tuning
+  robot->getMotor("left wheel motor")->setVelocity(0.0);
+  robot->getMotor("right wheel motor")->setVelocity(0.0);
+  
+  // Calculate and Print Results
+  PIDConfig tunedResults = tuner.calculatePID();
+  std::cout << ">>> TUNING COMPLETE <<<" << std::endl;
+  std::cout << "Kp: " << tunedResults.Kp << std::endl;
+  std::cout << "Ki: " << tunedResults.Ki << std::endl;
+  std::cout << "Kd: " << tunedResults.Kd << std::endl;
+  
+  // Apply to your MotionController (Assuming you have a setter, otherwise copy manually)
+  PIDConfig config(tunedResults.Kp,tunedResults.Ki,tunedResults.Kd);
+  motion->setPID(config);
+  // motion->setPID(tunedResults); 
+  
+  // Reset for main loop
+  sensing->calibrateGyro(20); // Recalibrate briefly after shaking
+  // -------------------------------------
+
   while (robot->step(timeStep) != -1) {
     // A. Update Sensors (Reads Encoders/IMU)
     sensing->update();
 
     //Odemetry update
+    double dt = timeStep / 1000.0;
     double angle = sensing->getYaw();
-    odem->setAngle(angle);
-    odem->update(sensing->getLVel(),sensing->getRVel(),sensing->dt_seconds);
+    odem->update(sensing->getLeftEncoder(), sensing->getRightEncoder(), dt); // Fixed: Pass raw encoder vals or vel depending on implementation
 
     // Map update
-    map->updateMap(sensing->isWallAtFront(),\
-                  sensing->isWall);
+    map->updateMap(sensing->isWallAtFront(), sensing->isWallAtRight(), sensing->isWallAtBack(), sensing->isWallAtLeft());
     
 
     // B. Update Motion (PID calculation)
-    double dt = timeStep / 1000.0;
     motion->update(dt);
 
     // C. Exit/Chain when done
