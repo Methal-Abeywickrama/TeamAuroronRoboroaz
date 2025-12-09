@@ -52,15 +52,16 @@ private:
 public:
     Odometry(double r, double l, double s) : radius(r), axleLength(l), x(0.0), y(0.0), theta(0.0), CELL_SIZE(s) {}
 
-    void update(double v_left_rad, double v_right_rad, double dt) {
-        double v_left = radius * v_left_rad;
-        double v_right = radius * v_right_rad;
+    void update(double left_rad, double right_rad, double dt) {
+        // left and right encoders (change)
+        double dist_left = radius * left_rad;
+        double dist_right = radius * right_rad;
 
-        double v = (v_left + v_right) / 2;
+        double d = (dist_left + dist_right) / 2;
         //double w = (v_right - v_left) / axleLength;
 
-        x += v * std::cos(theta) * dt;
-        y += v * std::sin(theta) * dt;
+        x += d * std::cos(theta) * dt;
+        y += d * std::sin(theta) * dt;
         //theta += w * dt;
 
         if (theta > PI) { theta -= 2 * PI; }
@@ -171,9 +172,6 @@ public:
     }
 
     void updateCheckpointCount(int x, int y) {
-        // std::set::insert returns a pair. The second part is a bool.
-        // True = inserted (new unique item)
-        // False = failed (duplicate existed)
         Vec2<int> point = {x,y};
         for (const auto& visited : checkpoints) {
             if (visited == point) {
