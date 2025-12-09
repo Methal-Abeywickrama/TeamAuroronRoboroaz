@@ -311,20 +311,23 @@ public:
   double getRightEncoder() { return cached_enc_right; }
   FloorColor getFloorColor() { return cached_floor_color; }
 
-  // Wall Helpers
+  // Wall Helpers - thresholds based on sensor analysis
+  // Sensors start detecting at ~0.90m (raw=110), saturate at ~0.014m
+  // (raw=3800+)
   bool isWallAtFront() {
-    return (getDistance(0) < 0.15) && (getDistance(7) < 0.15);
+    return (getDistance(0) < 0.90) &&
+           (getDistance(7) < 0.90); // 90cm detection range
   }
   bool isWallAtBack() {
     return (getDistance(3) < 0.1) && (getDistance(4) < 0.1);
   }
-  bool isWallAtLeft() { return (getDistance(5) < 0.15); }
-  bool isWallAtRight() { return (getDistance(2) < 0.15); }
+  bool isWallAtLeft() { return (getDistance(5) < 0.90); }
+  bool isWallAtRight() { return (getDistance(2) < 0.90); }
 
   double getDistanceToFrontWall() {
     double d1 = getDistance(0);
     double d2 = getDistance(7);
-    if (d1 > 1.0 || d2 > 1.0)
+    if (d1 > 1.5 || d2 > 1.5) // Increased threshold for "no wall"
       return 2.0;
     return (d1 + d2) / 2.0;
   }
@@ -334,6 +337,27 @@ public:
   void setLEDs(bool on) {
     for (auto *l : leds)
       l->set(on ? 1 : 0);
+  }
+
+  // DEBUG: Get RAW sensor value (before linearization) to diagnose sensor
+  // issues Returns -1 if sensor not available
+  double getRawDistance(int index) {
+    if (index < 0 || index >= (int)distanceSensors.size())
+      return -1.0;
+    return distanceSensors[index]->getValue();
+  }
+
+  // DEBUG: Print all raw sensor values
+  void printRawSensors() {
+    std::cout << "RAW SENSORS: ";
+    for (int i = 0; i < 8; i++) {
+      if (i < (int)distanceSensors.size()) {
+        std::cout << "ps" << i << "=" << distanceSensors[i]->getValue() << " ";
+      } else {
+        std::cout << "ps" << i << "=N/A ";
+      }
+    }
+    std::cout << std::endl;
   }
 };
 } // namespace Sensor

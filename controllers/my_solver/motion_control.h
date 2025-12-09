@@ -1,5 +1,5 @@
-#ifndef MOVING_CONTROL_H
-#define MOVING_CONTROL_H
+#ifndef MOTION_CONTROL_H
+#define MOTION_CONTROL_H
 
 #define _USE_MATH_DEFINES
 #include "sensing.h"
@@ -94,6 +94,33 @@ struct PIDParams {
 };
 
 // ============================================================================
+// FAST DRIVE CONFIG (Optimized 1-tile movement)
+// ============================================================================
+struct FastDriveConfig {
+  // Target and tolerances
+  static constexpr double TARGET_DIST = 0.25000;  // 1 tile = 0.25m
+  static constexpr double POSITION_TOL = 0.00300; // 3mm accuracy
+  static constexpr double HEADING_TOL = 0.00500;  // ~0.3 deg accuracy
+  static constexpr double SETTLE_TIME = 0.04000;  // 40ms settle
+
+  // Optimized deceleration zones - start later, brake harder
+  static constexpr double DECEL_ZONE_1 =
+      0.08000; // Start decel at 8cm remaining
+  static constexpr double DECEL_ZONE_2 = 0.04000; // Mid decel at 4cm
+  static constexpr double DECEL_ZONE_3 = 0.01500; // Final approach at 1.5cm
+  static constexpr double SPEED_ZONE_1 = 5.50;    // Speed in zone 1
+  static constexpr double SPEED_ZONE_2 = 3.00;    // Speed in zone 2
+  static constexpr double SPEED_ZONE_3 = 1.50;    // Speed in zone 3
+
+  // Wall failsafe - stop if front sensors detect wall closer than this
+  static constexpr double WALL_STOP_DIST = 0.09000; // 9cm = 125mm robot center
+
+  // Wall correction
+  static constexpr double WALL_APPROACH_SPEED = 1.50; // Speed for correction
+  static constexpr double WALL_FINAL_TOLERANCE = 0.00200; // 2mm tolerance
+};
+
+// ============================================================================
 // ROBUST PID CONTROLLER
 // ============================================================================
 class PID {
@@ -167,12 +194,22 @@ public:
   enum class TurnPhase { Coarse, Fine };       // Two-phase turning
   enum class DrivePhase { Moving, FineAlign }; // Two-phase driving
 
+  // Fast drive state machine (for moveForwardFast)
+  enum class FastDriveState {
+    Idle,
+    Accelerating,
+    Cruising,
+    Decelerating,
+    Settling
+  };
+
 private:
   webots::Robot *robot_;
   webots::Motor *leftMotor_;
   webots::Motor *rightMotor_;
   Sensor::Sensing *sensors_;
   std::ofstream debugFile_;
+  std::ofstream fastDebugFile_; // Separate debug file for fast drive
 
   PID distPID_;
   PID anglePID_;
@@ -204,6 +241,13 @@ private:
   // Wall correction smoothing - prevents jerk at wall transitions
   double prevWallCorrection_ = 0.0;
   double wallIntegral_ = 0.0; // Integral term for wall correction
+
+  // Fast drive state variables
+  FastDriveState fastDriveState_ = FastDriveState::Idle;
+  double fastCurrentSpeed_ = 0.0;
+  double fastTargetOdomDist_ = 0.0;
+  double fastStartEncL_ = 0.0;
+  double fastStartEncR_ = 0.0;
 
   double normalizeAngle(double angle) {
     while (angle > M_PI)
@@ -409,6 +453,72 @@ private:
     debugFile_ << "----------------------------------------\n";
   }
 
+  // =========================================================================
+  // FAST DRIVE HELPER FUNCTIONS
+  // =========================================================================
+
+  // Get distance traveled using encoders for fast drive
+  double getFastOdometryDistance() {
+    if (!sensors_)
+      return 0.0;
+    double encL = sensors_->getLeftEncoder();
+    double encR = sensors_->getRightEncoder();
+    double dL = (encL - fastStartEncL_) * MazeConfig::WHEEL_RADIUS;
+    double dR = (encR - fastStartEncR_) * MazeConfig::WHEEL_RADIUS;
+    return (dL + dR) / 2.0;
+  }
+
+  // Set motor velocities directly (renamed to avoid conflict with setMotors)
+  void setMotorsDirect(double left, double right) {
+    if (leftMotor_)
+      leftMotor_->setVelocity(std::max(-MazeConfig::MAX_SPEED,
+                                       std::min(MazeConfig::MAX_SPEED, left)));
+    if (rightMotor_)
+      rightMotor_->setVelocity(std::max(
+          -MazeConfig::MAX_SPEED, std::min(MazeConfig::MAX_SPEED, right)));
+  }
+
+  // Compute speed based on optimized deceleration zones
+  double computeFastSpeed(double remaining) {
+    if (remaining > FastDriveConfig::DECEL_ZONE_1) {
+      return MazeConfig::MAX_SPEED;
+    } else if (remaining > FastDriveConfig::DECEL_ZONE_2) {
+      return FastDriveConfig::SPEED_ZONE_1;
+    } else if (remaining > FastDriveConfig::DECEL_ZONE_3) {
+      return FastDriveConfig::SPEED_ZONE_2;
+    } else {
+      return FastDriveConfig::SPEED_ZONE_3;
+    }
+  }
+
+  // Log fast drive state
+  void logFastState(const char *phase, double odomDist, double remaining,
+                    double speed) {
+    if (!fastDebugFile_.is_open())
+      return;
+
+    // Get raw sensor values for debugging
+    double rawPS0 = sensors_->getRawDistance(0); // Front-right
+    double rawPS7 = sensors_->getRawDistance(7); // Front-left
+    double distPS0 = sensors_->getDistance(0);
+    double distPS7 = sensors_->getDistance(7);
+
+    fastDebugFile_ << std::fixed << std::setprecision(2);
+    fastDebugFile_ << std::setw(8) << robot_->getTime() << "s  ";
+    fastDebugFile_ << phase << "  ";
+    fastDebugFile_ << std::setprecision(5);
+    fastDebugFile_ << "odom=" << std::setw(7) << odomDist;
+    fastDebugFile_ << "  rem=" << std::setw(7) << remaining;
+    fastDebugFile_ << "  spd=" << std::setw(5) << std::setprecision(2) << speed;
+    fastDebugFile_ << "  |  PS0: raw=" << std::setw(6) << std::setprecision(0)
+                   << rawPS0 << " dist=" << std::setprecision(3) << distPS0
+                   << "m";
+    fastDebugFile_ << "  PS7: raw=" << std::setw(6) << std::setprecision(0)
+                   << rawPS7 << " dist=" << std::setprecision(3) << distPS7
+                   << "m";
+    fastDebugFile_ << "\n";
+  }
+
 public:
   MovingController(webots::Robot *r, Sensor::Sensing *s)
       : robot_(r), sensors_(s) {
@@ -447,6 +557,9 @@ public:
     if (debugFile_.is_open())
       debugFile_.close();
   }
+
+  // Overload: move forward by 1 tile (0.25m) when called with no arguments
+  void moveForward() { moveForward(1); }
 
   void moveForward(double tiles) {
     moveForwardMeters(tiles * MazeConfig::TILE_SIZE);
@@ -492,8 +605,281 @@ public:
     setMotors(0.0, 0.0);
   }
 
+  // =========================================================================
+  // WALL DETECTION - Check if wall is detectable in front
+  // Based on sensor analysis: detection starts at ~0.90m
+  // =========================================================================
+  bool hasWallInFront() {
+    if (!sensors_)
+      return false;
+    sensors_->update();
+    return sensors_->isWallAtFront();
+  }
+
+  // =========================================================================
+  // correctToWall - Drive forward/backward to reach target distance from wall
+  // Based on sensor analysis: 0.09m sensor reading = 0.125m robot center
+  // =========================================================================
+  void correctToWall(double targetDistM) {
+    if (!robot_ || !sensors_)
+      return;
+
+    int timestep = static_cast<int>(robot_->getBasicTimeStep());
+    static constexpr int MAX_ITERATIONS = 500;
+
+    sensors_->update();
+    double frontDist = sensors_->getDistanceToFrontWall();
+    double error = frontDist - targetDistM;
+
+    // Log to debug_report.txt
+    if (debugFile_.is_open()) {
+      debugFile_ << "\n========================================\n";
+      debugFile_ << "WALL CORRECTION STARTED\n";
+      debugFile_ << "Time: " << robot_->getTime() << "s\n";
+      debugFile_ << "Initial distance: " << std::fixed << std::setprecision(5)
+                 << frontDist << "m\n";
+      debugFile_ << "Target distance: " << targetDistM << "m\n";
+      debugFile_ << "Initial error: " << error << "m\n";
+      debugFile_ << "Direction: "
+                 << (error > 0 ? "FORWARD (too far)" : "BACKWARD (too close)")
+                 << "\n";
+      debugFile_ << "Raw PS0: " << sensors_->getRawDistance(0) << "\n";
+      debugFile_ << "Raw PS7: " << sensors_->getRawDistance(7) << "\n";
+      debugFile_ << "----------------------------------------\n";
+    }
+
+    if (fastDebugFile_.is_open()) {
+      fastDebugFile_ << "\n--- WALL CORRECTION ---\n";
+      fastDebugFile_ << "Initial: " << frontDist << "m, Target: " << targetDistM
+                     << "m\n";
+    }
+
+    std::cout << std::fixed << std::setprecision(5);
+    std::cout << "WALL CORRECTION: " << frontDist << "m -> " << targetDistM
+              << "m" << std::endl;
+
+    int iteration = 0;
+    while (std::abs(error) > FastDriveConfig::WALL_FINAL_TOLERANCE &&
+           iteration < MAX_ITERATIONS) {
+      if (robot_->step(timestep) == -1)
+        break;
+
+      sensors_->update();
+      frontDist = sensors_->getDistanceToFrontWall();
+      error = frontDist - targetDistM;
+
+      // Bidirectional correction
+      double speed = 0.0;
+      if (error > FastDriveConfig::WALL_FINAL_TOLERANCE) {
+        speed = FastDriveConfig::WALL_APPROACH_SPEED; // Move forward
+      } else if (error < -FastDriveConfig::WALL_FINAL_TOLERANCE) {
+        speed = -FastDriveConfig::WALL_APPROACH_SPEED; // Move backward
+      }
+
+      // Slow down when close
+      if (std::abs(error) < 0.01000) {
+        speed *= 0.5;
+      }
+
+      setMotorsDirect(speed, speed);
+
+      if (fastDebugFile_.is_open() && iteration % 20 == 0) {
+        fastDebugFile_ << "  iter=" << iteration << " dist=" << frontDist
+                       << "m err=" << error << "m spd=" << speed << "\n";
+      }
+      iteration++;
+    }
+
+    setMotorsDirect(0.0, 0.0);
+
+    // Settle
+    for (int i = 0; i < 5 && robot_->step(timestep) != -1; i++) {
+      sensors_->update();
+    }
+
+    frontDist = sensors_->getDistanceToFrontWall();
+    error = frontDist - targetDistM;
+
+    std::cout << "CORRECTION DONE: " << frontDist << "m (err=" << error
+              << "m) in " << iteration << " steps" << std::endl;
+
+    // Log correction result to debug_report.txt
+    if (debugFile_.is_open()) {
+      debugFile_ << "WALL CORRECTION COMPLETE\n";
+      debugFile_ << "Time: " << robot_->getTime() << "s\n";
+      debugFile_ << "Final distance: " << std::fixed << std::setprecision(5)
+                 << frontDist << "m\n";
+      debugFile_ << "Final error: " << error << "m\n";
+      debugFile_ << "Iterations: " << iteration << "\n";
+      debugFile_ << "Raw PS0: " << sensors_->getRawDistance(0) << "\n";
+      debugFile_ << "Raw PS7: " << sensors_->getRawDistance(7) << "\n";
+      debugFile_ << (std::abs(error) <= FastDriveConfig::WALL_FINAL_TOLERANCE
+                         ? "SUCCESS"
+                         : "TOLERANCE NOT MET")
+                 << "\n";
+      debugFile_ << "========================================\n\n";
+      debugFile_.flush();
+    }
+
+    if (fastDebugFile_.is_open()) {
+      fastDebugFile_ << "Final: " << frontDist << "m, Error: " << error
+                     << "m\n";
+      fastDebugFile_ << "Iterations: " << iteration << "\n";
+      fastDebugFile_.flush();
+    }
+  }
+
+  // =========================================================================
+  // moveForwardFast - OPTIMIZED 1-TILE MOVEMENT
+  // BLOCKING CALL - runs its own simulation loop until movement complete
+  // Includes wall failsafe to prevent overshooting
+  // =========================================================================
+  void moveForwardFast() {
+    if (!robot_ || !sensors_)
+      return;
+
+    int timestep = static_cast<int>(robot_->getBasicTimeStep());
+    double dt = timestep / 1000.0;
+
+    // Initialize encoder start positions
+    sensors_->update();
+    fastStartEncL_ = sensors_->getLeftEncoder();
+    fastStartEncR_ = sensors_->getRightEncoder();
+    fastTargetOdomDist_ = FastDriveConfig::TARGET_DIST;
+    fastCurrentSpeed_ = 0.0;
+    fastDriveState_ = FastDriveState::Accelerating;
+
+    // Open fast debug file if not open
+    if (!fastDebugFile_.is_open()) {
+      fastDebugFile_.open("testing_debugs.txt",
+                          std::ios::out | std::ios::trunc);
+      if (fastDebugFile_.is_open()) {
+        fastDebugFile_ << "=== FAST DRIVE DEBUG LOG ===\n";
+        fastDebugFile_ << "Fast drive target: " << FastDriveConfig::TARGET_DIST
+                       << "m\n";
+        fastDebugFile_ << "Decel zones: " << FastDriveConfig::DECEL_ZONE_1
+                       << "m, " << FastDriveConfig::DECEL_ZONE_2 << "m, "
+                       << FastDriveConfig::DECEL_ZONE_3 << "m\n";
+        fastDebugFile_ << "====================================\n\n";
+      }
+    }
+
+    if (fastDebugFile_.is_open()) {
+      fastDebugFile_ << "\n--- NEW FAST RUN ---\n";
+      fastDebugFile_ << "Target: " << fastTargetOdomDist_ << "m\n\n";
+    }
+
+    // Run internal update loop until movement is complete
+    bool running = true;
+    while (running && robot_->step(timestep) != -1) {
+      sensors_->update();
+
+      double odomDist = getFastOdometryDistance();
+      double remaining = fastTargetOdomDist_ - odomDist;
+
+      // WALL FAILSAFE: Stop if front sensors detect wall too close
+      double frontDist = sensors_->getDistanceToFrontWall();
+      if (frontDist < FastDriveConfig::WALL_STOP_DIST && frontDist < 1.5) {
+        setMotorsDirect(0.0, 0.0);
+
+        std::cout << std::fixed << std::setprecision(5);
+        std::cout << "WALL FAILSAFE: Stopping at " << frontDist << "m (< "
+                  << FastDriveConfig::WALL_STOP_DIST << "m)" << std::endl;
+
+        // Log wall failsafe to debug_report.txt
+        if (debugFile_.is_open()) {
+          debugFile_ << "\n========================================\n";
+          debugFile_ << "*** WALL FAILSAFE TRIGGERED ***\n";
+          debugFile_ << "Time: " << robot_->getTime() << "s\n";
+          debugFile_ << "Front distance: " << std::fixed << std::setprecision(5)
+                     << frontDist << "m\n";
+          debugFile_ << "Stop threshold: " << FastDriveConfig::WALL_STOP_DIST
+                     << "m\n";
+          debugFile_ << "Odometry traveled: " << odomDist << "m\n";
+          debugFile_ << "Remaining to target: " << remaining << "m\n";
+          debugFile_ << "Current speed: " << fastCurrentSpeed_ << " rad/s\n";
+          debugFile_ << "Raw PS0: " << sensors_->getRawDistance(0) << "\n";
+          debugFile_ << "Raw PS7: " << sensors_->getRawDistance(7) << "\n";
+          debugFile_ << "PS0 dist: " << sensors_->getDistance(0) << "m\n";
+          debugFile_ << "PS7 dist: " << sensors_->getDistance(7) << "m\n";
+          debugFile_ << "========================================\n\n";
+          debugFile_.flush();
+        }
+
+        if (fastDebugFile_.is_open()) {
+          fastDebugFile_ << "\n*** WALL FAILSAFE TRIGGERED ***\n";
+          fastDebugFile_ << "Front dist: " << frontDist << "m\n";
+          fastDebugFile_ << "Stop threshold: "
+                         << FastDriveConfig::WALL_STOP_DIST << "m\n";
+          fastDebugFile_ << "Odometry: " << odomDist << "m\n";
+          fastDebugFile_.flush();
+        }
+
+        running = false;
+        break;
+      }
+
+      // Compute target speed based on remaining distance
+      double targetSpeed = computeFastSpeed(remaining);
+
+      // Smooth speed transitions
+      if (remaining > FastDriveConfig::DECEL_ZONE_1) {
+        fastCurrentSpeed_ =
+            std::min(fastCurrentSpeed_ + 15.0 * dt, targetSpeed);
+      } else {
+        if (fastCurrentSpeed_ > targetSpeed) {
+          fastCurrentSpeed_ =
+              std::max(fastCurrentSpeed_ - 25.0 * dt, targetSpeed);
+        } else {
+          fastCurrentSpeed_ = targetSpeed;
+        }
+      }
+
+      setMotorsDirect(fastCurrentSpeed_, fastCurrentSpeed_);
+      logFastState("RUN   ", odomDist, remaining, fastCurrentSpeed_);
+
+      // Check if reached target
+      if (remaining <= FastDriveConfig::POSITION_TOL) {
+        setMotorsDirect(0.0, 0.0);
+
+        // Brief settling period
+        for (int i = 0; i < 4 && robot_->step(timestep) != -1; i++) {
+          sensors_->update();
+        }
+
+        double finalDist = getFastOdometryDistance();
+        double error = finalDist - FastDriveConfig::TARGET_DIST;
+
+        std::cout << std::fixed << std::setprecision(5);
+        std::cout << "FAST COMPLETE: dist=" << finalDist << "m (error=" << error
+                  << "m)" << std::endl;
+
+        if (fastDebugFile_.is_open()) {
+          fastDebugFile_ << "\n========== FAST RUN COMPLETE ==========\n";
+          fastDebugFile_ << std::fixed << std::setprecision(5);
+          fastDebugFile_ << "Final distance: " << finalDist << "m\n";
+          fastDebugFile_ << "Target was: " << FastDriveConfig::TARGET_DIST
+                         << "m\n";
+          fastDebugFile_ << "Error: " << error << "m\n";
+          fastDebugFile_ << "========================================\n";
+          fastDebugFile_.flush();
+        }
+
+        running = false;
+      }
+    }
+
+    fastDriveState_ = FastDriveState::Idle;
+  }
+
+  // =========================================================================
+  // STATUS QUERIES
+  // =========================================================================
   bool isBusy() const { return state_ != State::Idle; }
   State getState() const { return state_; }
+  bool isFastDriveActive() const {
+    return fastDriveState_ != FastDriveState::Idle;
+  }
 
   void update(double dt) {
     if (state_ == State::Idle || !sensors_)
@@ -620,4 +1006,4 @@ public:
 
 } // namespace Motion
 
-#endif // MOVING_CONTROL_H
+#endif // MOTION_CONTROL_H

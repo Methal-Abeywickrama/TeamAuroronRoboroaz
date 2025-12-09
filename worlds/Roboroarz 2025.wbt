@@ -7,7 +7,7 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/Roughcast.proto"
 
 WorldInfo {
-  basicTimeStep 20
+  basicTimeStep 16
 }
 Viewpoint {
   orientation -0.34456913357885344 0.40423559087333005 0.8472695552514606 1.7902585567976335
@@ -374,7 +374,7 @@ Wall {
   size 0.01 0.5 0.1
 }
 Robot {
-  translation 1.37429 -1.37429 -3.97442e-05
+  translation 1.37426 -1.37426 -3.19083e-05
   rotation 0 0 1 1.5709
   children [
     HingeJoint {
@@ -395,7 +395,7 @@ Robot {
         }
       ]
       endPoint DEF EPUCK_LEFT_WHEEL Solid {
-        translation 0 0.026000000000000224 0.02
+        translation 0 0.026000000000000197 0.02
         rotation 0 1 0 4.782780891240977
         children [
           DEF EPUCK_WHEEL Pose {
@@ -548,8 +548,8 @@ Robot {
         }
       ]
       endPoint DEF EPUCK_RIGHT_WHEEL Solid {
-        translation 0 -0.025999999999999843 0.02
-        rotation 0 1 0 0.7090734798915014
+        translation 0 -0.025999999999999857 0.02
+        rotation 0 1 0 0.7090734798915
         children [
           Pose {
             rotation 1 0 0 3.14159

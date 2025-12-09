@@ -1,62 +1,27 @@
-
-#include <cmath>
 #include <iostream>
-#include <string>
-#include <vector>
 #include <webots/Supervisor.hpp>
 
-// #include "moving_control.h"
 #include "motion_control.h"
 #include "sensing.h"
+// #include "testingfunctions.h"  // No longer needed for moveForwardFast
 
 using namespace webots;
-using namespace Motion;
 using namespace Sensor;
+using namespace Motion;
 
 // ============================================================================
-// COMMAND TYPES - Use these to build your command sequence
-// ============================================================================
-enum CommandType {
-  FORWARD,   // Move forward N tiles
-  TURN_LEFT, // Turn 90 degrees left
-  TURN_RIGHT // Turn 90 degrees right
-};
-
-struct Command {
-  CommandType type;
-  double value; // For FORWARD: number of tiles. For turns: ignored (use 0)
-};
-
-// ============================================================================
-// >>> EDIT YOUR COMMAND SEQUENCE HERE <<<
-// ============================================================================
-const std::vector<Command> COMMANDS = {
-    {FORWARD, 5}, // Go forward 5 tiles
-
-    {TURN_LEFT, 0},  {FORWARD, 1},    {TURN_RIGHT, 0}, {FORWARD, 1},
-    {TURN_RIGHT, 0}, {FORWARD, 1},    {TURN_LEFT, 0},  {FORWARD, 5},
-    {TURN_RIGHT, 0}, {TURN_RIGHT, 0}, {FORWARD, 5},    {TURN_RIGHT, 0},
-    {FORWARD, 1},    {TURN_RIGHT, 0}, {FORWARD, 1},
-    // Turn left 90 degrees
-    // Add more commands here as
-    // needed, e.g.: {FORWARD,
-    // 3}, {TURN_RIGHT, 0},
-    // {FORWARD, 2},
-};
-
-// ============================================================================
-// MAIN FUNCTION
+// MAIN FUNCTION - Test moveForwardFast (now in MotionController)
 // ============================================================================
 int main(int argc, char **argv) {
   // 1. Initialize Robot
   Supervisor *robot = new Supervisor();
   int timeStep = (int)robot->getBasicTimeStep();
 
-  // 2. Initialize Modules
+  // 2. Initialize Sensing
   Sensing *sensing = new Sensing(robot, timeStep);
-  MovingController *motion = new MovingController(robot, sensing);
 
   // 3. Initial Stabilization
+  std::cout << "Stabilizing..." << std::endl;
   for (int i = 0; i < 20; i++) {
     robot->step(timeStep);
     sensing->update();
@@ -66,55 +31,42 @@ int main(int argc, char **argv) {
   std::cout << "Calibrating Gyro..." << std::endl;
   sensing->calibrateGyro(50);
 
-  std::cout << ">>> MAZE SOLVER STARTED <<<" << std::endl;
-  std::cout << "Total commands to execute: " << COMMANDS.size() << std::endl;
+  // 5. Create MotionController
+  MovingController motion(robot, sensing);
 
-  // 5. Execute Command Sequence
-  size_t cmdIndex = 0;
-  bool needNextCommand = true;
+  // =========================================================================
+  // TEST: 1-tile movement with wall correction (using MotionController)
+  // Target: Robot center at 125mm from wall (sensor reads 90mm)
+  // =========================================================================
+  std::cout << "\n>>> 5-TILE TEST WITH WALLFAILSAFE & CORRECTION <<<"
+            << std::endl;
+  std::cout << "Moving 5 tiles. Wall correction logic runs after each tile."
+            << std::endl;
+  std::cout << "----------------------------------------" << std::endl;
 
-  while (robot->step(timeStep) != -1) {
-    sensing->update();
-    double dt = timeStep / 1000.0;
-    motion->update(dt);
+  for (int i = 0; i < 5; i++) {
+    std::cout << "\n=== MOVING TILE " << (i + 1) << "/5 ===" << std::endl;
+    motion.moveForwardFast();
 
-    // Start next command when ready
-    if (needNextCommand && !motion->isBusy()) {
-      if (cmdIndex >= COMMANDS.size()) {
-        std::cout << ">>> ALL COMMANDS COMPLETE <<<" << std::endl;
-        break;
-      }
-
-      const Command &cmd = COMMANDS[cmdIndex];
-      std::cout << "[CMD " << (cmdIndex + 1) << "/" << COMMANDS.size() << "] ";
-
-      switch (cmd.type) {
-      case FORWARD:
-        std::cout << "FORWARD " << cmd.value << " tiles" << std::endl;
-        motion->moveForward(cmd.value);
-        break;
-      case TURN_LEFT:
-        std::cout << "TURN LEFT" << std::endl;
-        motion->turnLeft();
-        break;
-      case TURN_RIGHT:
-        std::cout << "TURN RIGHT" << std::endl;
-        motion->turnRight();
-        break;
-      }
-
-      cmdIndex++;
-      needNextCommand = false;
-    }
-
-    // Check if command finished
-    if (!motion->isBusy()) {
-      needNextCommand = true;
+    // Check for wall and correct position if detected
+    if (motion.hasWallInFront()) {
+      std::cout << "Wall detected - correcting to 90mm..." << std::endl;
+      motion.correctToWall(0.09000); // 90mm sensor = 125mm center
+    } else {
+      std::cout << "No wall in range" << std::endl;
     }
   }
 
-  // 6. Cleanup
-  delete motion;
+  std::cout << "----------------------------------------" << std::endl;
+  std::cout << ">>> TEST COMPLETE <<<" << std::endl;
+  std::cout << "Check testing_debugs.txt for detailed log" << std::endl;
+
+  // 6. Keep simulation running briefly to see final position
+  for (int i = 0; i < 50; i++) {
+    robot->step(timeStep);
+  }
+
+  // 7. Cleanup
   delete sensing;
   delete robot;
   return 0;

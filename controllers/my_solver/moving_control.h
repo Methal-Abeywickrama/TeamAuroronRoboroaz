@@ -141,7 +141,7 @@ private:
 
   double fusedHeading_ = MazeConfig::INITIAL_HEADING;
   double odomHeading_ = MazeConfig::INITIAL_HEADING;
-  double prevGyroYaw_ = 0.0;
+
   double lastEncL_ = 0.0;
   double lastEncR_ = 0.0;
   bool headingInitialized_ = false;
