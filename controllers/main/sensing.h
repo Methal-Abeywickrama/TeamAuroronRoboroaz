@@ -189,12 +189,7 @@ public:
   }
 
   ~Sensing() {}
-
-  bool isWallGreen() {
-    if (processVision() == COLOR_GREEN) {return true;}
-    return false;
-  }
-
+  
   // -------------------------------------------------------------------------
   // 0. CALIBRATION (Call in main.cpp)
   // -------------------------------------------------------------------------
@@ -284,6 +279,7 @@ public:
     //     cached_dist_meters[i] = (0.6 * meters) + (0.4 * cached_dist_meters[i]);
     //   }
     // }
+    // C. Update Distance Sensors (Power Law Linearization) for side and back sensors
     for (int i = 0; i < 8; i++) {
             if (i < (int)distanceSensors.size()) {
                 double rawIR = distanceSensors[i]->getValue();
@@ -318,6 +314,7 @@ public:
     // D. Update Vision
     cached_floor_color = processVision();
   }
+    // E. Distance calculation for front sensors
 
   // -------------------------------------------------------------------------
   // 2. GRID SNAP SUPPORT (Critical for MotionControl)
@@ -369,11 +366,103 @@ public:
   bool isWallAtRight() { return (getDistance(2) < 0.15); }
 
   double getDistanceToFrontWall() {
-    double d1 = getDistance(0);
-    double d2 = getDistance(7);
-    if (d1 > 0.25 || d2 > 0.25)
-      return 0.25;
-    return (d1 + d2) / 2.0;
+    int ids[2] = {0, 7}; 
+    double distances[2] = {0.0, 0.0};
+
+    for (int k = 0; k < 2; k++) {
+        int i = ids[k];
+        
+        // 1. Get Raw Data
+        double rawIR = distanceSensors[i]->getValue();
+        double ambientLight = 0.0;
+        if (i < (int)lightSensors.size()) {
+            ambientLight = lightSensors[i]->getValue();
+        }
+
+        // 2. Standard Cancellation (No Color Gain)
+        double trueSignal = rawIR - (ambientLight * INTERFERENCE_FACTOR);
+        
+        // Standard noise floor clamp
+        if (trueSignal < 20.0) trueSignal = 20.0;
+
+        // 3. Conversion
+        double meters = 0.0;
+
+        if (trueSignal > 1800.0) {
+             // Zone 1: Very Close (< 8cm)
+             meters = CLOSE_COEFF_A * pow(trueSignal, CLOSE_COEFF_B);
+        }
+        else if (trueSignal > 1000.0) {
+             // Zone 2: Mid Range (8cm - 12cm)
+             meters = POWER_COEFF_A * pow(trueSignal, POWER_COEFF_B);
+        } 
+        else {
+             // Zone 3: Far Range (12cm+)
+             double normalized = trueSignal / 1000.0; 
+             meters = 0.27 - (normalized * (0.27 - 0.117)); 
+        }
+        
+        distances[k] = meters;
+    }
+    
+    double avgDistance = (distances[0] + distances[1]) / 2.0;
+
+    // 4. GEOMETRIC CORRECTION 
+    // Fixes the angle of sensors 0 and 7 (~0.94 factor)
+    double correctedDistance = avgDistance * 0.94; 
+
+    // Clamp max range
+    if (correctedDistance > 0.25) return 0.25;
+
+    return correctedDistance;
+  }
+
+  // Checks if the 'Green' color dominates the camera view ( > 70% coverage)
+  bool isFrontWallGreen() {
+    if (!camera) return false;
+    const unsigned char *image = camera->getImage();
+    if (!image) return false;
+
+    int w = camera->getWidth();
+    int h = camera->getHeight();
+    if (w < 1 || h < 1) return false;
+
+    int greenPixelCount = 0;
+    int totalPixels = w * h;
+
+    // Iterate over the ENTIRE frame
+    for (int x = 0; x < w; x++) {
+      for (int y = 0; y < h; y++) {
+        int r = webots::Camera::imageGetRed(image, w, x, y);
+        int g = webots::Camera::imageGetGreen(image, w, x, y);
+        int b = webots::Camera::imageGetBlue(image, w, x, y);
+
+        // Per-Pixel Check:
+        // We use a lower threshold (+20) than the average method (+40).
+        // Dark pixels might be (R:15, G:40, B:15). The diff is only 25.
+        // If we strictly required +40, we would miss dark green walls.
+        if (g > (r + 20) && g > (b + 20)) {
+           greenPixelCount++;
+        }
+      }
+    }
+
+    double greenRatio = (double)greenPixelCount / (double)totalPixels;
+
+    // Optional: Print the ratio to console to help you tune the 0.70 number
+    // std::cout << "Green Coverage: " << greenRatio * 100 << "%" << std::endl;
+
+    // Threshold: 0.70 (70% of the screen must be green)
+    std::cout << greenRatio << std::endl;
+    return (greenRatio > 0.50);
+  }
+
+  bool is2SquaresLeftGreen() {
+
+  }
+
+  bool is2SquaresRightGreen() {
+
   }
   double getDistanceToLeftWall() { return getDistance(5); }
   double getDistanceToRightWall() { return getDistance(2); }
