@@ -110,6 +110,42 @@ private:
     return COLOR_NONE;
   }
 
+  bool checkRegionForGreen(int startX, int endX, int startY, int endY) {
+        if (!camera) return false;
+        const unsigned char* image = camera->getImage();
+        if (!image) return false;
+
+        int w = camera->getWidth();
+        int h = camera->getHeight();
+
+        long r = 0, g = 0, b = 0;
+        int count = 0;
+
+        // 1. Iterate through the requested box
+        for (int x = startX; x < endX; x++) {
+            for (int y = startY; y < endY; y++) {
+                // Bounds safety check
+                if (x >= 0 && x < w && y >= 0 && y < h) {
+                    r += webots::Camera::imageGetRed(image, w, x, y);
+                    g += webots::Camera::imageGetGreen(image, w, x, y);
+                    b += webots::Camera::imageGetBlue(image, w, x, y);
+                    count++;
+                }
+            }
+        }
+
+        if (count == 0) return false;
+
+        // 2. Average the colors
+        r /= count;
+        g /= count;
+        b /= count;
+
+        // 3. Green Detection Logic (Same threshold as your other functions)
+        // Green must be significantly brighter than Red and Blue
+        return (g > r + 30 && g > b + 30);
+    }
+
   void initSensors() {
     // 1. Distance Sensors
     std::string psNames[8] = {"ps0", "ps1", "ps2", "ps3",
@@ -458,12 +494,39 @@ public:
   }
 
   bool is2SquaresLeftGreen() {
+        int w = camera->getWidth();
+        int h = camera->getHeight();
 
-  }
+        // X: Standard 0% to 20% (Left Edge)
+        int startX = 0;
+        int endX = w * 0.20; 
 
-  bool is2SquaresRightGreen() {
+        // Y: User said 45% to 80% (Bottom-Up)
+        // In Computer Vision (Top-Down):
+        // Top limit (80% up) -> Row 20% (0.20)
+        // Bottom limit (45% up) -> Row 55% (0.55)
+        int startY = h * 0.20; 
+        int endY = h * 0.55;
 
-  }
+        return checkRegionForGreen(startX, endX, startY, endY);
+    }
+
+    // --- NEW: Look 2 Squares Away (Right Side) ---
+    bool is2SquaresRightGreen() {
+        int w = camera->getWidth();
+        int h = camera->getHeight();
+
+        // X: Standard 80% to 100% (Right Edge)
+        int startX = w * 0.80; 
+        int endX = w;
+
+        // Y: Same conversion as above
+        int startY = h * 0.20;
+        int endY = h * 0.55;
+
+        return checkRegionForGreen(startX, endX, startY, endY);
+    }
+
   double getDistanceToLeftWall() { return getDistance(5); }
   double getDistanceToRightWall() { return getDistance(2); }
 
