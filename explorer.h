@@ -2,7 +2,9 @@
 #define EXPLORER_H
 
 #include "navigator.h"
-#include <stack>
+#include "motion_control.h"
+#include "sensing.h"
+#include <stack>   
 
 namespace Navigation {
 
@@ -18,15 +20,24 @@ public:
 Explorer(Map &m, Navigator &n, Odometry &o)
     : map(m), nav(n), odo(o) {}
 
-// ----- Robot sensor wrappers -----
-bool northBlocked() { return false; }
-bool eastBlocked()  { return false; }
-bool southBlocked() { return false; }
-bool westBlocked()  { return false; }
-
 // ----- Robot move wrapper -----
 void move(int dir) {
-    // insert robot movement here
+    switch (dir) {
+        case 0:{
+            moveForward()
+    }
+        case 1:{
+            turnRight()
+            moveForward()
+    }
+        case 2:{
+            rotate(3.1415)
+            moveForward()
+    }
+        case 3:{
+            turnLeft()
+            moveForward()
+    }
 }
 
 // ---------- DFS explore ----------
@@ -47,10 +58,10 @@ void explore(Vec2<int> start) {
         // Unvisited → map update
         if (nav.getMap().getValue(cx, cy) == 0) {
 
-            bool N = northBlocked();
-            bool E = eastBlocked();
-            bool S = southBlocked();
-            bool W = westBlocked();
+            bool N = isWallAtFront();
+            bool E = isWallAtRight();
+            bool S = isWallAtBack();
+            bool W = isWallAtLeft();
 
             nav.getMap().head_update(N, E, S, W, odo, cx, cy);
             nav.getMap().updateCheckpointCount(cx, cy);
