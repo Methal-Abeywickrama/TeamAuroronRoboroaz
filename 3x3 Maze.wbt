@@ -1,0 +1,95 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/Floor.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/apartment_structure/protos/Wall.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/Roughcast.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation 0.5117762493750009 -0.49879760993834327 -0.6994898247261737 4.338332876737979
+  position 0.37262972540292777 -0.9900861756274663 3.1876401690537586
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+Floor {
+  size 0.75 0.75
+}
+Wall {
+  translation -0.38 0.005 0
+  name "Edge Wall"
+  size 0.01 0.75 0.1
+}
+Wall {
+  translation 0.38 0.005 0
+  name "Edge Wall(1)"
+  size 0.01 0.75 0.1
+}
+Wall {
+  translation -3.77254e-07 0.375 0
+  rotation 0 0 1 -1.5707953071795862
+  name "Edge Wall(2)"
+  size 0.01 0.75 0.1
+}
+Wall {
+  translation 3.8745e-07 -0.375 0
+  rotation 0 0 1 -1.5707953071795862
+  name "Edge Wall(3)"
+  size 0.01 0.75 0.1
+}
+Wall {
+  translation 0.12 -0.235 0
+  name "wall(1)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation 0.26 -0.235 0
+  name "Starting Point"
+  size 0.01 0.01 0.1
+}
+Wall {
+  translation 0.12 0.005 0
+  name "wall(2)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation -0.13 0.005 0
+  name "wall(3)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation -0.26 0.125 0
+  rotation 0 0 1 1.5708
+  name "wall(4)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation -0.250001 -0.365 0
+  rotation 0 0 1 -1.5707953071795862
+  name "checkpoint Wall"
+  size 0.01 0.2 0.1
+  appearance Roughcast {
+    colorOverride 0 1 0
+    textureTransform TextureTransform {
+      scale 2.4 1
+    }
+    IBLStrength 10
+  }
+}
+Wall {
+  translation 0.249999 0.365 0
+  rotation 0 0 1 -1.5707953071795862
+  name "checkpoint Wall(1)"
+  size 0.01 0.2 0.1
+  appearance Roughcast {
+    colorOverride 0 1 0
+    textureTransform TextureTransform {
+      scale 2.4 1
+    }
+    IBLStrength 10
+  }
+}
