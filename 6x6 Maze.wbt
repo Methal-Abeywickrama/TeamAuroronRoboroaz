@@ -1,0 +1,221 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/Floor.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/apartment_structure/protos/Wall.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/appearances/protos/Roughcast.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation 0.5631375150433654 -0.572687104050231 -0.5957395571936978 4.230995680183936
+  position 0.35286290552705973 -0.1674544323001023 4.8208221343218725
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+Floor {
+  size 1.5 1.5
+}
+Wall {
+  translation 0.75 0.005 0
+  name "Edge Wall"
+  size 0.01 1.5 0.1
+}
+Wall {
+  translation -6.74634e-14 0.755 0
+  rotation 0 0 1 1.5708
+  name "Edge Wall(2)"
+  size 0.01 1.5 0.1
+}
+Wall {
+  translation 5.54648e-06 -0.755 0
+  rotation 0 0 1 1.5708
+  name "Edge Wall(3)"
+  size 0.01 1.5 0.1
+}
+Wall {
+  translation -0.75 0.005 0
+  name "Edge Wall(1)"
+  size 0.01 1.5 0.1
+}
+Wall {
+  translation 0.49 -0.625 0
+  name "wall(1)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation 0.49 -0.375 0
+  name "wall(2)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation 0.49 -0.125 0
+  name "wall(3)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation 0.25 0.625 0
+  name "wall(6)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation 0.25 0.375 0
+  name "wall(7)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation 0.25 0.125 0
+  name "wall(8)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation 0.25 -0.375 0
+  name "wall(9)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation -0.5 -0.375 0
+  name "wall(19)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation -0.5 -0.125 0
+  name "wall(20)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation -0.5 0.375 0
+  name "wall(21)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation -0.5 0.625 0
+  name "wall(22)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation 0.62 0.255 0
+  rotation 0 0 1 -1.5707953071795862
+  name "wall(4)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation 0.37 0.505 0
+  rotation 0 0 1 -1.5707953071795862
+  name "wall(5)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation -0.13 0.505 0
+  rotation 0 0 1 -1.5707953071795862
+  name "wall(10)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation -0.13 0.255 0
+  rotation 0 0 1 -1.5707953071795862
+  name "wall(11)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation -0.38 0.255 0
+  rotation 0 0 1 -1.5707953071795862
+  name "wall(12)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation -0.38 0.005 0
+  rotation 0 0 1 -1.5707953071795862
+  name "wall(13)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation -0.13 0.00500025 0
+  rotation 0 0 1 -1.5707953071795862
+  name "wall(14)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation -0.63 0.00499975 0
+  rotation 0 0 1 -1.5707953071795862
+  name "wall(15)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation 0.13 -0.255 0
+  rotation 0 0 1 -1.5707953071795862
+  name "wall(16)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation 0.13 -0.495 0
+  rotation 0 0 1 -1.5707953071795862
+  name "wall(17)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation -0.12 -0.495 0
+  rotation 0 0 1 -1.5707953071795862
+  name "wall(18)"
+  size 0.01 0.25 0.1
+}
+Wall {
+  translation 0.62 -0.625 0
+  name "Starting Point"
+  size 0.01 0.01 0.1
+}
+Wall {
+  translation 0.38 0.495 0
+  rotation 0 0 1 -1.5707953071795862
+  name "checkpoint Wall"
+  size 0.01 0.2 0.1
+  appearance Roughcast {
+    colorOverride 0 1 0
+    textureTransform TextureTransform {
+      scale 2.4 1
+    }
+    IBLStrength 10
+  }
+}
+Wall {
+  translation -0.13 0.495 0
+  rotation 0 0 1 -1.5707953071795862
+  name "checkpoint Wall(1)"
+  size 0.01 0.2 0.1
+  appearance Roughcast {
+    colorOverride 0 1 0
+    textureTransform TextureTransform {
+      scale 2.4 1
+    }
+    IBLStrength 10
+  }
+}
+Wall {
+  translation 0.13 -0.505 0
+  rotation 0 0 1 -1.5707953071795862
+  name "checkpoint Wall(2)"
+  size 0.01 0.2 0.1
+  appearance Roughcast {
+    colorOverride 0 1 0
+    textureTransform TextureTransform {
+      scale 2.4 1
+    }
+    IBLStrength 10
+  }
+}
+Wall {
+  translation -0.37 -0.00500024 0
+  rotation 0 0 1 -1.5707953071795862
+  name "checkpoint Wall(3)"
+  size 0.01 0.2 0.1
+  appearance Roughcast {
+    colorOverride 0 1 0
+    textureTransform TextureTransform {
+      scale 2.4 1
+    }
+    IBLStrength 10
+  }
+}
