@@ -1,4 +1,0 @@
-=== NAVIGATION LOG ===
-      Time        AbsX        AbsY   CellX   CellY   Heading   Walls
---------------------------------------------------------------------
->>> GREEN_CHECK FRONT @ (0,0) heading=NORTH wall=YES green=NO raw0=44.6563 raw7=73.1957 <<<

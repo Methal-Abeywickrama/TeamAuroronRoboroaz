@@ -1,0 +1,14 @@
+=== NAVIGATION LOG ===
+      Time        AbsX        AbsY   CellX   CellY   Heading   Walls
+--------------------------------------------------------------------
+>>> GREEN_CHECK FRONT @ (0,0) heading=NORTH wall=NO green=NO raw0=20 raw7=20 <<<
+>>> GREEN_CHECK LEFT @ (0,0) heading=WEST wall=YES green=NO raw0=273.589 raw7=213.587 <<<
+>>> GREEN_CHECK RIGHT @ (0,0) heading=EAST wall=YES green=NO raw0=1286.36 raw7=1259.86 <<<
+>>> GREEN_CHECK FRONT @ (0,1) heading=NORTH wall=NO green=NO raw0=20 raw7=20 <<<
+>>> GREEN_CHECK LEFT @ (0,1) heading=WEST wall=YES green=NO raw0=295.298 raw7=233.705 <<<
+>>> GREEN_CHECK RIGHT @ (0,1) heading=EAST wall=YES green=NO raw0=1252.09 raw7=1277.35 <<<
+>>> GREEN_CHECK FRONT @ (0,2) heading=NORTH wall=NO green=NO raw0=20 raw7=20 <<<
+>>> GREEN_CHECK LEFT @ (0,2) heading=WEST wall=YES green=NO raw0=316.73 raw7=255.485 <<<
+>>> GREEN_CHECK RIGHT @ (0,2) heading=EAST wall=YES green=NO raw0=1242.77 raw7=1227.22 <<<
+>>> GREEN_CHECK FRONT @ (0,3) heading=NORTH wall=NO green=NO raw0=20 raw7=20 <<<
+>>> GREEN_CHECK LEFT @ (0,3) heading=WEST wall=YES green=NO raw0=327.188 raw7=259.917 <<<
