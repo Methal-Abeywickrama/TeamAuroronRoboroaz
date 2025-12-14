@@ -1,7 +1,7 @@
 #ifndef NAVIGATOR_H
 #define NAVIGATOR_H
 
-#include "methal_sensing.h"
+#include "sensing.h"
 #include <algorithm>
 #include <cmath>
 #include <fstream>

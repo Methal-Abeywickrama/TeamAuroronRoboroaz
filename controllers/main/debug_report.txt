@@ -1,0 +1,953 @@
+Calibrating gyro...
+Calibrating Gyro... (Keep Robot Still)
+Gyro Calibrated. Bias: -8.31596e-11
+
+========================================
+     DFS MAZE EXPLORATION
+========================================
+Grid: 12x12
+Start: (0,0) bottom-right, facing NORTH
+----------------------------------------
+
+=== DFS EXPLORATION STARTED ===
+Start: cell(0,0), facing NORTH
+Cell(0,0) walls=W-E-
+ROTATE: 1.5708 rad -> target -3.14149
+[2.0s] Cell(0,0) NORTH - TurningToLeft FW:0.067m
+[4.0s] Cell(0,0) NORTH - TurningToLeft FW:0.052m
+TURN: Switching to FINE alignment (err=0.029)
+[6.0s] Cell(0,0) NORTH - TurningToLeft FW:0.052m
+[8.1s] Cell(0,0) NORTH - TurningToLeft FW:0.052m
+TURN COMPLETE: yaw=-3.13916 target=-3.14149 (timeout, err=-0.00233)
+ROTATE: -1.57080 rad -> target 1.57323
+[10.1s] Cell(0,0) WEST - TurningBackFromLeft FW:0.090m
+[12.1s] Cell(0,0) WEST - TurningBackFromLeft FW:0.090m
+TURN: Switching to FINE alignment (err=-0.026)
+[14.1s] Cell(0,0) WEST - TurningBackFromLeft FW:0.090m
+TURN COMPLETE: yaw=1.57311 target=1.57323 err=0.00012
+ROTATE: -1.57080 rad -> target 0.00231
+[16.1s] Cell(0,0) NORTH - TurningToRight1 FW:0.090m
+[18.1s] Cell(0,0) NORTH - TurningToRight1 FW:0.064m
+[20.2s] Cell(0,0) NORTH - TurningToRight1 FW:0.057m
+TURN: Switching to FINE alignment (err=-0.026)
+[22.2s] Cell(0,0) NORTH - TurningToRight1 FW:0.055m
+TURN COMPLETE: yaw=0.00219 target=0.00231 err=0.00012
+ROTATE: 1.57080 rad -> target 1.57299
+[24.2s] Cell(0,0) EAST - TurningBackFromRight FW:0.090m
+[26.2s] Cell(0,0) EAST - TurningBackFromRight FW:0.090m
+TURN: Switching to FINE alignment (err=0.026)
+[28.2s] Cell(0,0) EAST - TurningBackFromRight FW:0.090m
+[30.2s] Cell(0,0) EAST - TurningBackFromRight FW:0.090m
+TURN COMPLETE: yaw=1.57311 target=1.57299 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+[32.3s] Cell(0,0) NORTH - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24756m (error=-0.00244m)
+Arrived at cell(0,1)
+Cell(0,1) walls=W-E-
+ROTATE: 1.57080 rad -> target -3.13928
+[34.3s] Cell(0,1) NORTH - TurningToLeft FW:0.090m
+[36.3s] Cell(0,1) NORTH - TurningToLeft FW:0.061m
+[38.3s] Cell(0,1) NORTH - TurningToLeft FW:0.081m
+TURN: Switching to FINE alignment (err=0.029)
+[40.3s] Cell(0,1) NORTH - TurningToLeft FW:0.081m
+TURN COMPLETE: yaw=-3.13916 target=-3.13928 err=-0.00012
+ROTATE: -1.57080 rad -> target 1.57323
+[42.3s] Cell(0,1) WEST - TurningBackFromLeft FW:0.090m
+[44.4s] Cell(0,1) WEST - TurningBackFromLeft FW:0.090m
+[46.4s] Cell(0,1) WEST - TurningBackFromLeft FW:0.090m
+TURN: Switching to FINE alignment (err=-0.029)
+[48.4s] Cell(0,1) WEST - TurningBackFromLeft FW:0.090m
+TURN COMPLETE: yaw=1.57311 target=1.57323 err=0.00012
+ROTATE: -1.57080 rad -> target 0.00231
+[50.4s] Cell(0,1) NORTH - TurningToRight1 FW:0.074m
+[52.4s] Cell(0,1) NORTH - TurningToRight1 FW:0.063m
+TURN: Switching to FINE alignment (err=-0.029)
+[54.4s] Cell(0,1) NORTH - TurningToRight1 FW:0.064m
+[56.4s] Cell(0,1) NORTH - TurningToRight1 FW:0.063m
+TURN COMPLETE: yaw=0.00219 target=0.00231 err=0.00012
+ROTATE: 1.57080 rad -> target 1.57299
+[58.5s] Cell(0,1) EAST - TurningBackFromRight FW:0.090m
+[60.5s] Cell(0,1) EAST - TurningBackFromRight FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[62.5s] Cell(0,1) EAST - TurningBackFromRight FW:0.090m
+TURN COMPLETE: yaw=1.57311 target=1.57299 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+[64.5s] Cell(0,1) NORTH - MovingForward FW:0.090m
+[66.5s] Cell(0,1) NORTH - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24756m (error=-0.00244m)
+Arrived at cell(0,2)
+Cell(0,2) walls=W-E-
+ROTATE: 1.57080 rad -> target -3.13928
+[68.5s] Cell(0,2) NORTH - TurningToLeft FW:0.077m
+[70.6s] Cell(0,2) NORTH - TurningToLeft FW:0.070m
+TURN: Switching to FINE alignment (err=0.029)
+[72.6s] Cell(0,2) NORTH - TurningToLeft FW:0.068m
+[74.6s] Cell(0,2) NORTH - TurningToLeft FW:0.068m
+TURN COMPLETE: yaw=-3.13916 target=-3.13928 err=-0.00012
+ROTATE: -1.57080 rad -> target 1.57323
+[76.6s] Cell(0,2) WEST - TurningBackFromLeft FW:0.090m
+[78.6s] Cell(0,2) WEST - TurningBackFromLeft FW:0.090m
+TURN: Switching to FINE alignment (err=-0.029)
+[80.6s] Cell(0,2) WEST - TurningBackFromLeft FW:0.090m
+TURN COMPLETE: yaw=1.57311 target=1.57323 err=0.00012
+ROTATE: -1.57080 rad -> target 0.00231
+[82.7s] Cell(0,2) NORTH - TurningToRight1 FW:0.090m
+[84.7s] Cell(0,2) NORTH - TurningToRight1 FW:0.059m
+[86.7s] Cell(0,2) NORTH - TurningToRight1 FW:0.072m
+TURN: Switching to FINE alignment (err=-0.029)
+[88.7s] Cell(0,2) NORTH - TurningToRight1 FW:0.071m
+TURN COMPLETE: yaw=0.00219 target=0.00231 err=0.00012
+ROTATE: 1.57080 rad -> target 1.57299
+[90.7s] Cell(0,2) EAST - TurningBackFromRight FW:0.071m
+[92.7s] Cell(0,2) EAST - TurningBackFromRight FW:0.090m
+[94.8s] Cell(0,2) EAST - TurningBackFromRight FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[96.8s] Cell(0,2) EAST - TurningBackFromRight FW:0.090m
+TURN COMPLETE: yaw=1.57311 target=1.57299 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+[98.8s] Cell(0,2) NORTH - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24756m (error=-0.00244m)
+Arrived at cell(0,3)
+Cell(0,3) walls=W-E-
+ROTATE: 1.57080 rad -> target -3.13928
+[100.8s] Cell(0,3) NORTH - TurningToLeft FW:0.090m
+[102.8s] Cell(0,3) NORTH - TurningToLeft FW:0.066m
+[104.8s] Cell(0,3) NORTH - TurningToLeft FW:0.061m
+TURN: Switching to FINE alignment (err=0.029)
+[106.8s] Cell(0,3) NORTH - TurningToLeft FW:0.060m
+TURN COMPLETE: yaw=-3.13916 target=-3.13928 err=-0.00012
+ROTATE: -1.57080 rad -> target 1.57323
+[108.9s] Cell(0,3) WEST - TurningBackFromLeft FW:0.065m
+[110.9s] Cell(0,3) WEST - TurningBackFromLeft FW:0.090m
+[112.9s] Cell(0,3) WEST - TurningBackFromLeft FW:0.090m
+TURN: Switching to FINE alignment (err=-0.029)
+[114.9s] Cell(0,3) WEST - TurningBackFromLeft FW:0.090m
+TURN COMPLETE: yaw=1.57311 target=1.57323 err=0.00012
+ROTATE: -1.57080 rad -> target 0.00231
+[116.9s] Cell(0,3) NORTH - TurningToRight1 FW:0.082m
+[118.9s] Cell(0,3) NORTH - TurningToRight1 FW:0.063m
+TURN: Switching to FINE alignment (err=-0.029)
+[121.0s] Cell(0,3) NORTH - TurningToRight1 FW:0.063m
+[123.0s] Cell(0,3) NORTH - TurningToRight1 FW:0.081m
+TURN COMPLETE: yaw=0.00219 target=0.00231 err=0.00012
+ROTATE: 1.57080 rad -> target 1.57299
+[125.0s] Cell(0,3) EAST - TurningBackFromRight FW:0.090m
+[127.0s] Cell(0,3) EAST - TurningBackFromRight FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[129.0s] Cell(0,3) EAST - TurningBackFromRight FW:0.090m
+TURN COMPLETE: yaw=1.57311 target=1.57299 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+[131.0s] Cell(0,3) NORTH - MovingForward FW:0.090m
+[133.1s] Cell(0,3) NORTH - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24756m (error=-0.00244m)
+Arrived at cell(0,4)
+Cell(0,4) walls=W-E-
+ROTATE: 1.57080 rad -> target -3.13928
+[135.1s] Cell(0,4) NORTH - TurningToLeft FW:0.052m
+[137.1s] Cell(0,4) NORTH - TurningToLeft FW:0.052m
+TURN: Switching to FINE alignment (err=0.029)
+[139.1s] Cell(0,4) NORTH - TurningToLeft FW:0.052m
+TURN COMPLETE: yaw=-3.13916 target=-3.13928 err=-0.00012
+ROTATE: -1.57080 rad -> target 1.57323
+[141.1s] Cell(0,4) WEST - TurningBackFromLeft FW:0.052m
+[143.1s] Cell(0,4) WEST - TurningBackFromLeft FW:0.090m
+[145.2s] Cell(0,4) WEST - TurningBackFromLeft FW:0.090m
+TURN: Switching to FINE alignment (err=-0.029)
+[147.2s] Cell(0,4) WEST - TurningBackFromLeft FW:0.090m
+TURN COMPLETE: yaw=1.57311 target=1.57323 err=0.00012
+ROTATE: -1.57080 rad -> target 0.00231
+[149.2s] Cell(0,4) NORTH - TurningToRight1 FW:0.090m
+[151.2s] Cell(0,4) NORTH - TurningToRight1 FW:0.069m
+[153.2s] Cell(0,4) NORTH - TurningToRight1 FW:0.050m
+TURN: Switching to FINE alignment (err=-0.029)
+[155.2s] Cell(0,4) NORTH - TurningToRight1 FW:0.051m
+TURN COMPLETE: yaw=0.00219 target=0.00231 err=0.00012
+ROTATE: 1.57080 rad -> target 1.57299
+[157.2s] Cell(0,4) EAST - TurningBackFromRight FW:0.090m
+[159.3s] Cell(0,4) EAST - TurningBackFromRight FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[161.3s] Cell(0,4) EAST - TurningBackFromRight FW:0.090m
+TURN COMPLETE: yaw=1.57311 target=1.57299 err=-0.00012
+[163.3s] Cell(0,4) NORTH - FindingNextCell FW:0.090m
+FAST FORWARD: Starting 1-tile movement
+WALL FAILSAFE: Stopping at 0.08570m (< 0.09000m)
+=== LATE WALL FAILSAFE (dist=0.20376m) ===
+Treating as arrival at cell(0,5)
+Cell(0,5) walls=-NE-
+ROTATE: -1.57080 rad -> target 0.00231
+[165.3s] Cell(0,5) NORTH - TurningToRight1 FW:0.086m
+[167.3s] Cell(0,5) NORTH - TurningToRight1 FW:0.075m
+[169.3s] Cell(0,5) NORTH - TurningToRight1 FW:0.053m
+TURN: Switching to FINE alignment (err=-0.029)
+[171.4s] Cell(0,5) NORTH - TurningToRight1 FW:0.052m
+TURN COMPLETE: yaw=0.00219 target=0.00231 err=0.00012
+ROTATE: 1.57080 rad -> target 1.57299
+[173.4s] Cell(0,5) EAST - TurningBackFromRight FW:0.068m
+[175.4s] Cell(0,5) EAST - TurningBackFromRight FW:0.090m
+[177.4s] Cell(0,5) EAST - TurningBackFromRight FW:0.086m
+TURN: Switching to FINE alignment (err=0.029)
+[179.4s] Cell(0,5) EAST - TurningBackFromRight FW:0.086m
+TURN COMPLETE: yaw=1.57311 target=1.57299 err=-0.00012
+ROTATE: 1.57080 rad -> target -3.13928
+[181.4s] Cell(0,5) NORTH - TurningToNextCell FW:0.090m
+[183.5s] Cell(0,5) NORTH - TurningToNextCell FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[185.5s] Cell(0,5) NORTH - TurningToNextCell FW:0.090m
+[187.5s] Cell(0,5) NORTH - TurningToNextCell FW:0.090m
+TURN COMPLETE: yaw=-3.13916 target=-3.13928 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+WALL FAILSAFE: Stopping at 0.08481m (< 0.09000m)
+=== EARLY WALL FAILSAFE (dist=0.16814m) ===
+Real wall detected - rescanning cell(0,5)
+WALL CORRECTION: 0.08481m -> 0.08500m
+CORRECTION DONE: 0.08485m (err=-0.00015m) in 0 steps
+[189.6s] Cell(0,5) WEST - LoggingCell FW:0.085m
+Cell(0,5) walls=W---
+ROTATE: -1.571 rad -> target 1.573
+[191.6s] Cell(0,5) WEST - TurningToNextCell FW:0.090m
+[193.7s] Cell(0,5) WEST - TurningToNextCell FW:0.090m
+TURN: Switching to FINE alignment (err=-0.029)
+[195.7s] Cell(0,5) WEST - TurningToNextCell FW:0.090m
+TURN COMPLETE: yaw=1.57311 target=1.57323 err=0.00012
+FAST FORWARD: Starting 1-tile movement
+[197.7s] Cell(0,5) NORTH - MovingForward FW:0.090m
+[199.7s] Cell(0,5) NORTH - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24762m (error=-0.00238m)
+Arrived at cell(0,6)
+Cell(0,6) walls=W---
+ROTATE: 1.57080 rad -> target -3.13928
+[201.7s] Cell(0,6) NORTH - TurningToLeft FW:0.090m
+[203.7s] Cell(0,6) NORTH - TurningToLeft FW:0.081m
+TURN: Switching to FINE alignment (err=0.029)
+[205.8s] Cell(0,6) NORTH - TurningToLeft FW:0.081m
+TURN COMPLETE: yaw=-3.13916 target=-3.13928 err=-0.00012
+ROTATE: -1.57080 rad -> target 1.57323
+[207.8s] Cell(0,6) WEST - TurningBackFromLeft FW:0.090m
+[209.8s] Cell(0,6) WEST - TurningBackFromLeft FW:0.090m
+[211.8s] Cell(0,6) WEST - TurningBackFromLeft FW:0.090m
+TURN: Switching to FINE alignment (err=-0.029)
+[213.8s] Cell(0,6) WEST - TurningBackFromLeft FW:0.090m
+TURN COMPLETE: yaw=1.57311 target=1.57323 err=0.00012
+FAST FORWARD: Starting 1-tile movement
+[215.8s] Cell(0,6) NORTH - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24762m (error=-0.00238m)
+Arrived at cell(0,7)
+Cell(0,7) walls=W-E-
+>>> CHECKPOINT at (0,7) <<<
+FAST FORWARD: Starting 1-tile movement
+[217.9s] Cell(0,7) NORTH - MovingForward FW:0.090m
+WALL FAILSAFE: Stopping at 0.08423m (< 0.09000m)
+=== EARLY WALL FAILSAFE (dist=0.09601m) ===
+Real wall detected - rescanning cell(0,7)
+WALL CORRECTION: 0.08423m -> 0.08500m
+CORRECTION DONE: 0.08356m (err=-0.00144m) in 0 steps
+Green wall - backing up 3.5cm
+MOVE BACKWARD: 0.03500m
+MOVE BACKWARD DONE in 19 steps
+Cell(0,7) walls=W-E-
+>>> CHECKPOINT at (0,7) <<<
+Cell(0,7) walls=WNE- (green wall checkpoint)
+ROTATE: 1.57080 rad -> target -3.13928
+[219.9s] Cell(0,7) NORTH - TurningToNextCell2 FW:0.090m
+[221.9s] Cell(0,7) NORTH - TurningToNextCell2 FW:0.090m
+[223.9s] Cell(0,7) NORTH - TurningToNextCell2 FW:0.076m
+TURN: Switching to FINE alignment (err=0.029)
+[225.9s] Cell(0,7) NORTH - TurningToNextCell2 FW:0.077m
+TURN COMPLETE: yaw=-3.13916 target=-3.13928 err=-0.00012
+ROTATE: 1.57080 rad -> target -1.56836
+[227.9s] Cell(0,7) NORTH - TurningToNextCell FW:0.090m
+[230.0s] Cell(0,7) NORTH - TurningToNextCell FW:0.090m
+[232.0s] Cell(0,7) NORTH - TurningToNextCell FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[234.0s] Cell(0,7) NORTH - TurningToNextCell FW:0.090m
+TURN COMPLETE: yaw=-1.56824 target=-1.56836 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+[236.0s] Cell(0,7) SOUTH - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24762m (error=-0.00238m)
+Arrived at cell(0,6)
+Cell(0,6) walls=W---
+Backtracked - skipping checkpoint detection
+[238.0s] Cell(0,6) SOUTH - Backtracking FW:0.090m
+FAST FORWARD: Starting 1-tile movement
+[240.0s] Cell(0,6) SOUTH - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24756m (error=-0.00244m)
+Arrived at cell(0,5)
+Cell(0,5) walls=W--S
+Backtracked - skipping checkpoint detection
+FAST FORWARD: Starting 1-tile movement
+[242.0s] Cell(0,5) SOUTH - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24762m (error=-0.00238m)
+Arrived at cell(0,4)
+Cell(0,4) walls=W-ES
+Backtracked - skipping checkpoint detection
+[244.1s] Cell(0,4) SOUTH - FindingNextCell FW:0.090m
+FAST FORWARD: Starting 1-tile movement
+[246.1s] Cell(0,4) SOUTH - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24756m (error=-0.00244m)
+Arrived at cell(0,3)
+Cell(0,3) walls=W-ES
+Backtracked - skipping checkpoint detection
+FAST FORWARD: Starting 1-tile movement
+[248.1s] Cell(0,3) SOUTH - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24756m (error=-0.00244m)
+Arrived at cell(0,2)
+Cell(0,2) walls=--ES
+Backtracked - skipping checkpoint detection
+[250.1s] Cell(0,2) SOUTH - Backtracking FW:0.090m
+FAST FORWARD: Starting 1-tile movement
+[252.1s] Cell(0,2) SOUTH - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24756m (error=-0.00244m)
+Arrived at cell(0,1)
+Cell(0,1) walls=W-ES
+Backtracked - skipping checkpoint detection
+FAST FORWARD: Starting 1-tile movement
+[254.1s] Cell(0,1) SOUTH - MovingForward FW:0.090m
+WALL FAILSAFE: Stopping at 0.07638m (< 0.09000m)
+=== EARLY WALL FAILSAFE (dist=0.16814m) ===
+Real wall detected - rescanning cell(0,1)
+WALL CORRECTION: 0.07638m -> 0.08500m
+CORRECTION DONE: 0.08171m (err=-0.00329m) in 500 steps
+[270.9s] Cell(0,1) SOUTH - LoggingCell FW:0.082m
+Cell(0,1) walls=--ES
+Backtracked - skipping checkpoint detection
+ROTATE: -1.571 rad -> target -3.139
+[272.9s] Cell(0,1) SOUTH - TurningToNextCell FW:0.090m
+[274.9s] Cell(0,1) SOUTH - TurningToNextCell FW:0.090m
+TURN: Switching to FINE alignment (err=-0.029)
+[276.9s] Cell(0,1) SOUTH - TurningToNextCell FW:0.090m
+TURN COMPLETE: yaw=-3.13916 target=-3.13904 err=0.00012
+FAST FORWARD: Starting 1-tile movement
+[278.9s] Cell(0,1) WEST - MovingForward FW:0.090m
+[281.0s] Cell(0,1) WEST - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24762m (error=-0.00238m)
+Arrived at cell(1,1)
+Cell(1,1) walls=---S
+ROTATE: 1.57080 rad -> target -1.56836
+[283.0s] Cell(1,1) WEST - TurningToLeft FW:0.090m
+[285.0s] Cell(1,1) WEST - TurningToLeft FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[287.0s] Cell(1,1) WEST - TurningToLeft FW:0.087m
+TURN COMPLETE: yaw=-1.56824 target=-1.56836 err=-0.00012
+ROTATE: -1.57080 rad -> target -3.13904
+[289.0s] Cell(1,1) SOUTH - TurningBackFromLeft FW:0.090m
+[291.0s] Cell(1,1) SOUTH - TurningBackFromLeft FW:0.090m
+[293.1s] Cell(1,1) SOUTH - TurningBackFromLeft FW:0.090m
+TURN: Switching to FINE alignment (err=-0.029)
+[295.1s] Cell(1,1) SOUTH - TurningBackFromLeft FW:0.090m
+TURN COMPLETE: yaw=-3.13916 target=-3.13904 err=0.00012
+ROTATE: -1.57080 rad -> target 1.57323
+[297.1s] Cell(1,1) WEST - TurningToNextCell FW:0.090m
+[299.1s] Cell(1,1) WEST - TurningToNextCell FW:0.090m
+TURN: Switching to FINE alignment (err=-0.029)
+[301.1s] Cell(1,1) WEST - TurningToNextCell FW:0.090m
+[303.1s] Cell(1,1) WEST - TurningToNextCell FW:0.090m
+TURN COMPLETE: yaw=1.57311 target=1.57323 err=0.00012
+FAST FORWARD: Starting 1-tile movement
+[305.2s] Cell(1,1) NORTH - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24762m (error=-0.00238m)
+Arrived at cell(1,2)
+Cell(1,2) walls=--E-
+ROTATE: -1.57080 rad -> target 0.00231
+[307.2s] Cell(1,2) NORTH - TurningToRight1 FW:0.090m
+[309.2s] Cell(1,2) NORTH - TurningToRight1 FW:0.019m
+TURN: Switching to FINE alignment (err=-0.029)
+[311.2s] Cell(1,2) NORTH - TurningToRight1 FW:0.019m
+[313.2s] Cell(1,2) NORTH - TurningToRight1 FW:0.019m
+TURN COMPLETE: yaw=0.00219 target=0.00231 err=0.00012
+ROTATE: 1.57080 rad -> target 1.57299
+[315.2s] Cell(1,2) EAST - TurningBackFromRight FW:0.090m
+[317.2s] Cell(1,2) EAST - TurningBackFromRight FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[319.3s] Cell(1,2) EAST - TurningBackFromRight FW:0.090m
+TURN COMPLETE: yaw=1.57311 target=1.57299 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+[321.3s] Cell(1,2) NORTH - MovingForward FW:0.090m
+WALL FAILSAFE: Stopping at 0.07017m (< 0.09000m)
+=== EARLY WALL FAILSAFE (dist=0.12811m) ===
+Real wall detected - rescanning cell(1,2)
+WALL CORRECTION: 0.07017m -> 0.08500m
+CORRECTION DONE: 0.09000m (err=0.00500m) in 500 steps
+[338.5s] Cell(1,2) NORTH - LoggingCell FW:0.090m
+Cell(1,2) walls=WN--
+ROTATE: 1.571 rad -> target -3.139
+[340.5s] Cell(1,2) NORTH - TurningToLeft FW:0.090m
+[342.6s] Cell(1,2) NORTH - TurningToLeft FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[344.6s] Cell(1,2) NORTH - TurningToLeft FW:0.090m
+TURN COMPLETE: yaw=-3.13916 target=-3.13928 err=-0.00012
+ROTATE: -1.57080 rad -> target 1.57323
+[346.6s] Cell(1,2) WEST - TurningBackFromLeft FW:0.090m
+[348.6s] Cell(1,2) WEST - TurningBackFromLeft FW:0.071m
+[350.6s] Cell(1,2) WEST - TurningBackFromLeft FW:0.069m
+TURN: Switching to FINE alignment (err=-0.029)
+[352.6s] Cell(1,2) WEST - TurningBackFromLeft FW:0.071m
+TURN COMPLETE: yaw=1.57311 target=1.57323 err=0.00012
+ROTATE: 1.57080 rad -> target -3.13928
+[354.7s] Cell(1,2) NORTH - TurningToNextCell2 FW:0.090m
+[356.7s] Cell(1,2) NORTH - TurningToNextCell2 FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[358.7s] Cell(1,2) NORTH - TurningToNextCell2 FW:0.090m
+[360.7s] Cell(1,2) NORTH - TurningToNextCell2 FW:0.090m
+TURN COMPLETE: yaw=-3.13916 target=-3.13928 err=-0.00012
+ROTATE: 1.57080 rad -> target -1.56836
+[362.7s] Cell(1,2) NORTH - TurningToNextCell FW:0.090m
+[364.7s] Cell(1,2) NORTH - TurningToNextCell FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[366.8s] Cell(1,2) NORTH - TurningToNextCell FW:0.090m
+TURN COMPLETE: yaw=-1.56824 target=-1.56836 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+[368.8s] Cell(1,2) SOUTH - MovingForward FW:0.090m
+[370.8s] Cell(1,2) SOUTH - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24762m (error=-0.00238m)
+Arrived at cell(1,1)
+Cell(1,1) walls=--E-
+Backtracked - skipping checkpoint detection
+ROTATE: -1.57080 rad -> target -3.13904
+[372.8s] Cell(1,1) SOUTH - TurningToNextCell FW:0.090m
+[374.8s] Cell(1,1) SOUTH - TurningToNextCell FW:0.090m
+TURN: Switching to FINE alignment (err=-0.029)
+[376.8s] Cell(1,1) SOUTH - TurningToNextCell FW:0.090m
+TURN COMPLETE: yaw=-3.13916 target=-3.13904 err=0.00012
+FAST FORWARD: Starting 1-tile movement
+[378.8s] Cell(1,1) WEST - MovingForward FW:0.090m
+[380.9s] Cell(1,1) WEST - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24762m (error=-0.00238m)
+Arrived at cell(2,1)
+Cell(2,1) walls=-N--
+ROTATE: -1.57080 rad -> target 1.57323
+[382.9s] Cell(2,1) WEST - TurningToRight1 FW:0.090m
+[384.9s] Cell(2,1) WEST - TurningToRight1 FW:0.070m
+TURN: Switching to FINE alignment (err=-0.029)
+[386.9s] Cell(2,1) WEST - TurningToRight1 FW:0.069m
+[388.9s] Cell(2,1) WEST - TurningToRight1 FW:0.070m
+TURN COMPLETE: yaw=1.57311 target=1.57323 err=0.00012
+ROTATE: 1.57080 rad -> target -3.13928
+[390.9s] Cell(2,1) NORTH - TurningBackFromRight FW:0.090m
+[393.0s] Cell(2,1) NORTH - TurningBackFromRight FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[395.0s] Cell(2,1) NORTH - TurningBackFromRight FW:0.090m
+TURN COMPLETE: yaw=-3.13916 target=-3.13928 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+[397.0s] Cell(2,1) WEST - MovingForward FW:0.090m
+[399.0s] Cell(2,1) WEST - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24762m (error=-0.00238m)
+Arrived at cell(3,1)
+Cell(3,1) walls=-N-S
+ROTATE: 1.57080 rad -> target -1.56836
+[401.0s] Cell(3,1) WEST - TurningToLeft FW:0.045m
+[403.0s] Cell(3,1) WEST - TurningToLeft FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[405.1s] Cell(3,1) WEST - TurningToLeft FW:0.090m
+[407.1s] Cell(3,1) WEST - TurningToLeft FW:0.090m
+TURN COMPLETE: yaw=-1.56824 target=-1.56836 err=-0.00012
+ROTATE: -1.57080 rad -> target -3.13904
+[409.1s] Cell(3,1) SOUTH - TurningBackFromLeft FW:0.090m
+[411.1s] Cell(3,1) SOUTH - TurningBackFromLeft FW:0.090m
+TURN: Switching to FINE alignment (err=-0.029)
+[413.1s] Cell(3,1) SOUTH - TurningBackFromLeft FW:0.090m
+TURN COMPLETE: yaw=-3.13916 target=-3.13904 err=0.00012
+ROTATE: -1.57080 rad -> target 1.57323
+[415.1s] Cell(3,1) WEST - TurningToRight1 FW:0.090m
+[417.2s] Cell(3,1) WEST - TurningToRight1 FW:0.075m
+[419.2s] Cell(3,1) WEST - TurningToRight1 FW:0.071m
+TURN: Switching to FINE alignment (err=-0.029)
+[421.2s] Cell(3,1) WEST - TurningToRight1 FW:0.071m
+TURN COMPLETE: yaw=1.57311 target=1.57323 err=0.00012
+ROTATE: 1.57080 rad -> target -3.13928
+[423.2s] Cell(3,1) NORTH - TurningBackFromRight FW:0.090m
+[425.2s] Cell(3,1) NORTH - TurningBackFromRight FW:0.090m
+[427.2s] Cell(3,1) NORTH - TurningBackFromRight FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[429.2s] Cell(3,1) NORTH - TurningBackFromRight FW:0.090m
+TURN COMPLETE: yaw=-3.13916 target=-3.13928 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+[431.3s] Cell(3,1) WEST - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24762m (error=-0.00238m)
+Arrived at cell(4,1)
+Cell(4,1) walls=-N-S
+ROTATE: 1.57080 rad -> target -1.56836
+[433.3s] Cell(4,1) WEST - TurningToLeft FW:0.090m
+[435.3s] Cell(4,1) WEST - TurningToLeft FW:0.032m
+[437.3s] Cell(4,1) WEST - TurningToLeft FW:0.030m
+TURN: Switching to FINE alignment (err=0.029)
+[439.3s] Cell(4,1) WEST - TurningToLeft FW:0.030m
+TURN COMPLETE: yaw=-1.56603 target=-1.56836 (timeout, err=-0.00233)
+ROTATE: -1.57080 rad -> target -3.13683
+[441.3s] Cell(4,1) SOUTH - TurningBackFromLeft FW:0.030m
+[443.4s] Cell(4,1) SOUTH - TurningBackFromLeft FW:0.090m
+[445.4s] Cell(4,1) SOUTH - TurningBackFromLeft FW:0.090m
+TURN: Switching to FINE alignment (err=-0.026)
+[447.4s] Cell(4,1) SOUTH - TurningBackFromLeft FW:0.090m
+TURN COMPLETE: yaw=-3.13695 target=-3.13683 err=0.00012
+ROTATE: -1.57080 rad -> target 1.57543
+[449.4s] Cell(4,1) WEST - TurningToRight1 FW:0.090m
+[451.4s] Cell(4,1) WEST - TurningToRight1 FW:0.073m
+TURN: Switching to FINE alignment (err=-0.026)
+[453.4s] Cell(4,1) WEST - TurningToRight1 FW:0.072m
+[455.5s] Cell(4,1) WEST - TurningToRight1 FW:0.072m
+TURN COMPLETE: yaw=1.57531 target=1.57543 err=0.00012
+ROTATE: 1.57080 rad -> target -3.13707
+[457.5s] Cell(4,1) NORTH - TurningBackFromRight FW:0.090m
+[459.5s] Cell(4,1) NORTH - TurningBackFromRight FW:0.090m
+TURN: Switching to FINE alignment (err=0.026)
+[461.5s] Cell(4,1) NORTH - TurningBackFromRight FW:0.090m
+TURN COMPLETE: yaw=-3.13695 target=-3.13707 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+[463.5s] Cell(4,1) WEST - MovingForward FW:0.090m
+[465.5s] Cell(4,1) WEST - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24762m (error=-0.00238m)
+Arrived at cell(5,1)
+Cell(5,1) walls=-N--
+ROTATE: -1.57080 rad -> target 1.57543
+[467.6s] Cell(5,1) WEST - TurningToRight1 FW:0.090m
+[469.6s] Cell(5,1) WEST - TurningToRight1 FW:0.073m
+TURN: Switching to FINE alignment (err=-0.029)
+[471.6s] Cell(5,1) WEST - TurningToRight1 FW:0.074m
+TURN COMPLETE: yaw=1.57531 target=1.57543 err=0.00012
+ROTATE: 1.57080 rad -> target -3.13707
+[473.6s] Cell(5,1) NORTH - TurningBackFromRight FW:0.090m
+[475.6s] Cell(5,1) NORTH - TurningBackFromRight FW:0.090m
+[477.6s] Cell(5,1) NORTH - TurningBackFromRight FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[479.6s] Cell(5,1) NORTH - TurningBackFromRight FW:0.090m
+TURN COMPLETE: yaw=-3.13695 target=-3.13707 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+[481.7s] Cell(5,1) WEST - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24762m (error=-0.00238m)
+Arrived at cell(6,1)
+Cell(6,1) walls=----
+ROTATE: -1.57080 rad -> target 1.57543
+[483.7s] Cell(6,1) WEST - TurningToNextCell FW:0.090m
+[485.7s] Cell(6,1) WEST - TurningToNextCell FW:0.090m
+[487.7s] Cell(6,1) WEST - TurningToNextCell FW:0.090m
+TURN: Switching to FINE alignment (err=-0.029)
+[489.7s] Cell(6,1) WEST - TurningToNextCell FW:0.090m
+TURN COMPLETE: yaw=1.57531 target=1.57543 err=0.00012
+FAST FORWARD: Starting 1-tile movement
+[491.7s] Cell(6,1) NORTH - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24762m (error=-0.00238m)
+Arrived at cell(6,2)
+Cell(6,2) walls=-N--
+ROTATE: 1.57080 rad -> target -3.13707
+[493.8s] Cell(6,2) NORTH - TurningToNextCell FW:0.090m
+[495.8s] Cell(6,2) NORTH - TurningToNextCell FW:0.090m
+[497.8s] Cell(6,2) NORTH - TurningToNextCell FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[499.8s] Cell(6,2) NORTH - TurningToNextCell FW:0.090m
+TURN COMPLETE: yaw=-3.13695 target=-3.13707 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+WALL FAILSAFE: Stopping at 0.08523m (< 0.09000m)
+=== EARLY WALL FAILSAFE (dist=0.02796m) ===
+Real wall detected - rescanning cell(6,2)
+WALL CORRECTION: 0.08523m -> 0.08500m
+CORRECTION DONE: 0.08486m (err=-0.00014m) in 0 steps
+Cell(6,2) walls=W---
+ROTATE: -1.57080 rad -> target 1.57543
+[501.8s] Cell(6,2) WEST - TurningToNextCell FW:0.085m
+[503.8s] Cell(6,2) WEST - TurningToNextCell FW:0.090m
+[505.9s] Cell(6,2) WEST - TurningToNextCell FW:0.090m
+TURN: Switching to FINE alignment (err=-0.029)
+[507.9s] Cell(6,2) WEST - TurningToNextCell FW:0.090m
+TURN COMPLETE: yaw=1.57531 target=1.57543 err=0.00012
+FAST FORWARD: Starting 1-tile movement
+[509.9s] Cell(6,2) NORTH - MovingForward FW:0.090m
+WALL FAILSAFE: Stopping at 0.08738m (< 0.09000m)
+=== LATE WALL FAILSAFE (dist=0.23185m) ===
+Treating as arrival at cell(6,3)
+Cell(6,3) walls=-N--
+ROTATE: 1.57080 rad -> target -3.13707
+[511.9s] Cell(6,3) NORTH - TurningToNextCell FW:0.090m
+[513.9s] Cell(6,3) NORTH - TurningToNextCell FW:0.090m
+[515.9s] Cell(6,3) NORTH - TurningToNextCell FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[518.0s] Cell(6,3) NORTH - TurningToNextCell FW:0.090m
+TURN COMPLETE: yaw=-3.13695 target=-3.13707 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+[520.0s] Cell(6,3) WEST - MovingForward FW:0.090m
+WALL FAILSAFE: Stopping at 0.08639m (< 0.09000m)
+=== LATE WALL FAILSAFE (dist=0.24561m) ===
+Treating as arrival at cell(7,3)
+Cell(7,3) walls=WN--
+ROTATE: -1.57080 rad -> target 1.57543
+[522.0s] Cell(7,3) WEST - TurningToRight1 FW:0.086m
+[524.0s] Cell(7,3) WEST - TurningToRight1 FW:0.090m
+[526.0s] Cell(7,3) WEST - TurningToRight1 FW:0.090m
+TURN: Switching to FINE alignment (err=-0.029)
+[528.0s] Cell(7,3) WEST - TurningToRight1 FW:0.090m
+TURN COMPLETE: yaw=1.57531 target=1.57543 err=0.00012
+ROTATE: 1.57080 rad -> target -3.13707
+[530.0s] Cell(7,3) NORTH - TurningBackFromRight FW:0.090m
+[532.1s] Cell(7,3) NORTH - TurningBackFromRight FW:0.090m
+[534.1s] Cell(7,3) NORTH - TurningBackFromRight FW:0.086m
+TURN: Switching to FINE alignment (err=0.029)
+[536.1s] Cell(7,3) NORTH - TurningBackFromRight FW:0.086m
+TURN COMPLETE: yaw=-3.13695 target=-3.13707 err=-0.00012
+ROTATE: 1.57080 rad -> target -1.56615
+[538.1s] Cell(7,3) WEST - TurningToNextCell FW:0.090m
+[540.1s] Cell(7,3) WEST - TurningToNextCell FW:0.090m
+[542.1s] Cell(7,3) WEST - TurningToNextCell FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[544.2s] Cell(7,3) WEST - TurningToNextCell FW:0.090m
+TURN COMPLETE: yaw=-1.56603 target=-1.56615 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+[546.2s] Cell(7,3) SOUTH - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24762m (error=-0.00238m)
+Arrived at cell(7,2)
+Cell(7,2) walls=W-ES
+ROTATE: 1.57080 rad -> target 0.00477
+[548.2s] Cell(7,2) SOUTH - TurningToLeft FW:0.090m
+[550.2s] Cell(7,2) SOUTH - TurningToLeft FW:0.024m
+[552.2s] Cell(7,2) SOUTH - TurningToLeft FW:0.024m
+TURN: Switching to FINE alignment (err=0.029)
+[554.2s] Cell(7,2) SOUTH - TurningToLeft FW:0.023m
+TURN COMPLETE: yaw=0.00709 target=0.00477 (timeout, err=-0.00233)
+ROTATE: -1.57080 rad -> target -1.56371
+[556.3s] Cell(7,2) EAST - TurningBackFromLeft FW:0.026m
+[558.3s] Cell(7,2) EAST - TurningBackFromLeft FW:0.090m
+[560.3s] Cell(7,2) EAST - TurningBackFromLeft FW:0.090m
+TURN: Switching to FINE alignment (err=-0.026)
+[562.3s] Cell(7,2) EAST - TurningBackFromLeft FW:0.090m
+TURN COMPLETE: yaw=-1.56383 target=-1.56371 err=0.00012
+ROTATE: -1.57080 rad -> target -3.13463
+[564.3s] Cell(7,2) SOUTH - TurningToRight1 FW:0.090m
+[566.3s] Cell(7,2) SOUTH - TurningToRight1 FW:0.090m
+TURN: Switching to FINE alignment (err=-0.026)
+[568.4s] Cell(7,2) SOUTH - TurningToRight1 FW:0.090m
+TURN COMPLETE: yaw=-3.13475 target=-3.13463 err=0.00012
+ROTATE: 1.57080 rad -> target -1.56395
+[570.4s] Cell(7,2) WEST - TurningBackFromRight FW:0.090m
+[572.4s] Cell(7,2) WEST - TurningBackFromRight FW:0.090m
+[574.4s] Cell(7,2) WEST - TurningBackFromRight FW:0.090m
+TURN: Switching to FINE alignment (err=0.026)
+[576.4s] Cell(7,2) WEST - TurningBackFromRight FW:0.090m
+TURN COMPLETE: yaw=-1.56383 target=-1.56395 err=-0.00012
+ROTATE: 1.57080 rad -> target 0.00697
+[578.4s] Cell(7,2) SOUTH - TurningToNextCell2 FW:0.035m
+[580.4s] Cell(7,2) SOUTH - TurningToNextCell2 FW:0.023m
+TURN: Switching to FINE alignment (err=0.026)
+[582.5s] Cell(7,2) SOUTH - TurningToNextCell2 FW:0.023m
+TURN COMPLETE: yaw=0.00709 target=0.00697 err=-0.00012
+[584.5s] Cell(7,2) SOUTH - TurningToNextCell2 FW:0.023m
+ROTATE: 1.571 rad -> target 1.578
+[586.5s] Cell(7,2) SOUTH - TurningToNextCell FW:0.090m
+[588.5s] Cell(7,2) SOUTH - TurningToNextCell FW:0.090m
+TURN: Switching to FINE alignment (err=0.026)
+[590.5s] Cell(7,2) SOUTH - TurningToNextCell FW:0.090m
+TURN COMPLETE: yaw=1.57802 target=1.57789 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+[592.5s] Cell(7,2) NORTH - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24762m (error=-0.00238m)
+Arrived at cell(7,3)
+Cell(7,3) walls=WN--
+Backtracked - skipping checkpoint detection
+[594.6s] Cell(7,3) NORTH - FindingNextCell FW:0.090m
+ROTATE: -1.571 rad -> target 0.007
+[596.6s] Cell(7,3) NORTH - TurningToNextCell FW:0.090m
+[598.6s] Cell(7,3) NORTH - TurningToNextCell FW:0.090m
+TURN: Switching to FINE alignment (err=-0.029)
+[600.6s] Cell(7,3) NORTH - TurningToNextCell FW:0.090m
+TURN COMPLETE: yaw=0.00709 target=0.00722 err=0.00012
+FAST FORWARD: Starting 1-tile movement
+[602.6s] Cell(7,3) EAST - MovingForward FW:0.090m
+[604.6s] Cell(7,3) EAST - MovingForward FW:0.090m
+FAST COMPLETE: dist=0.24762m (error=-0.00238m)
+Arrived at cell(6,3)
+Cell(6,3) walls=-NE-
+Backtracked - skipping checkpoint detection
+FAST FORWARD: Starting 1-tile movement
+WALL FAILSAFE: Stopping at 0.08634m (< 0.09000m)
+=== EARLY WALL FAILSAFE (dist=0.13207m) ===
+Real wall detected - rescanning cell(6,3)
+WALL CORRECTION: 0.08634m -> 0.08500m
+CORRECTION DONE: 0.08626m (err=0.00126m) in 0 steps
+Cell(6,3) walls=-NES
+ROTATE: 1.57080 rad -> target 1.57789
+[606.7s] Cell(6,3) EAST - TurningToLeft FW:0.090m
+[608.7s] Cell(6,3) EAST - TurningToLeft FW:0.090m
+[610.7s] Cell(6,3) EAST - TurningToLeft FW:0.085m
+TURN: Switching to FINE alignment (err=0.029)
+[612.7s] Cell(6,3) EAST - TurningToLeft FW:0.085m
+TURN COMPLETE: yaw=1.57802 target=1.57789 err=-0.00012
+ROTATE: -1.57080 rad -> target 0.00722
+[614.7s] Cell(6,3) NORTH - TurningBackFromLeft FW:0.090m
+[616.7s] Cell(6,3) NORTH - TurningBackFromLeft FW:0.090m
+[618.8s] Cell(6,3) NORTH - TurningBackFromLeft FW:0.090m
+TURN: Switching to FINE alignment (err=-0.029)
+[620.8s] Cell(6,3) NORTH - TurningBackFromLeft FW:0.087m
+TURN COMPLETE: yaw=0.00709 target=0.00722 err=0.00012
+ROTATE: -1.57080 rad -> target -1.56371
+[622.8s] Cell(6,3) EAST - TurningToRight1 FW:0.046m
+[624.8s] Cell(6,3) EAST - TurningToRight1 FW:0.026m
+TURN: Switching to FINE alignment (err=-0.029)
+[626.8s] Cell(6,3) EAST - TurningToRight1 FW:0.025m
+[628.8s] Cell(6,3) EAST - TurningToRight1 FW:0.025m
+TURN COMPLETE: yaw=-1.56383 target=-1.56371 err=0.00012
+ROTATE: 1.57080 rad -> target 0.00697
+[630.8s] Cell(6,3) SOUTH - TurningBackFromRight FW:0.059m
+[632.9s] Cell(6,3) SOUTH - TurningBackFromRight FW:0.075m
+TURN: Switching to FINE alignment (err=0.029)
+[634.9s] Cell(6,3) SOUTH - TurningBackFromRight FW:0.086m
+[636.9s] Cell(6,3) SOUTH - TurningBackFromRight FW:0.086m
+TURN COMPLETE: yaw=0.00709 target=0.00697 err=-0.00012
+ROTATE: -1.57080 rad -> target -1.56371
+[638.9s] Cell(6,3) EAST - TurningToNextCell FW:0.030m
+[640.9s] Cell(6,3) EAST - TurningToNextCell FW:0.026m
+TURN: Switching to FINE alignment (err=-0.029)
+[642.9s] Cell(6,3) EAST - TurningToNextCell FW:0.025m
+[645.0s] Cell(6,3) EAST - TurningToNextCell FW:0.025m
+TURN COMPLETE: yaw=-1.56383 target=-1.56371 err=0.00012
+FAST FORWARD: Starting 1-tile movement
+WALL FAILSAFE: Stopping at 0.02564m (< 0.09000m)
+=== EARLY WALL FAILSAFE (dist=0.00000m) ===
+Real wall detected - rescanning cell(6,3)
+WALL CORRECTION: 0.02564m -> 0.08500m
+CORRECTION DONE: 0.07947m (err=-0.00553m) in 63 steps
+[647.2s] Cell(6,3) SOUTH - LoggingCell FW:0.079m
+Cell(6,3) walls=--ES
+Backtracked - skipping checkpoint detection
+ROTATE: 1.571 rad -> target 0.007
+[649.2s] Cell(6,3) SOUTH - TurningToNextCell2 FW:0.090m
+[651.3s] Cell(6,3) SOUTH - TurningToNextCell2 FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[653.3s] Cell(6,3) SOUTH - TurningToNextCell2 FW:0.087m
+TURN COMPLETE: yaw=0.00709 target=0.00697 err=-0.00012
+ROTATE: 1.57080 rad -> target 1.57789
+[655.3s] Cell(6,3) SOUTH - TurningToNextCell FW:0.077m
+[657.3s] Cell(6,3) SOUTH - TurningToNextCell FW:0.066m
+[659.3s] Cell(6,3) SOUTH - TurningToNextCell FW:0.049m
+TURN: Switching to FINE alignment (err=0.029)
+[661.3s] Cell(6,3) SOUTH - TurningToNextCell FW:0.067m
+TURN COMPLETE: yaw=1.57802 target=1.57789 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+WALL FAILSAFE: Stopping at 0.04896m (< 0.09000m)
+=== EARLY WALL FAILSAFE (dist=0.00000m) ===
+Real wall detected - rescanning cell(6,3)
+WALL CORRECTION: 0.04896m -> 0.08500m
+CORRECTION DONE: 0.08324m (err=-0.00176m) in 71 steps
+[664.4s] Cell(6,3) NORTH - LoggingCell FW:0.083m
+Cell(6,3) walls=-NE-
+ROTATE: -1.571 rad -> target 0.007
+[666.4s] Cell(6,3) NORTH - TurningToRight1 FW:0.090m
+[668.4s] Cell(6,3) NORTH - TurningToRight1 FW:0.090m
+TURN: Switching to FINE alignment (err=-0.029)
+[670.5s] Cell(6,3) NORTH - TurningToRight1 FW:0.086m
+TURN COMPLETE: yaw=0.00709 target=0.00722 err=0.00012
+ROTATE: 1.57080 rad -> target 1.57789
+[672.5s] Cell(6,3) EAST - TurningBackFromRight FW:0.090m
+[674.5s] Cell(6,3) EAST - TurningBackFromRight FW:0.090m
+[676.5s] Cell(6,3) EAST - TurningBackFromRight FW:0.083m
+TURN: Switching to FINE alignment (err=0.029)
+[678.5s] Cell(6,3) EAST - TurningBackFromRight FW:0.083m
+TURN COMPLETE: yaw=1.57802 target=1.57789 err=-0.00012
+ROTATE: 1.57080 rad -> target -3.13437
+[680.5s] Cell(6,3) NORTH - TurningToNextCell2 FW:0.090m
+[682.6s] Cell(6,3) NORTH - TurningToNextCell2 FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[684.6s] Cell(6,3) NORTH - TurningToNextCell2 FW:0.090m
+[686.6s] Cell(6,3) NORTH - TurningToNextCell2 FW:0.090m
+TURN COMPLETE: yaw=-3.13425 target=-3.13437 err=-0.00012
+ROTATE: 1.57080 rad -> target -1.56345
+[688.6s] Cell(6,3) NORTH - TurningToNextCell FW:0.029m
+[690.6s] Cell(6,3) NORTH - TurningToNextCell FW:0.027m
+TURN: Switching to FINE alignment (err=0.029)
+[692.6s] Cell(6,3) NORTH - TurningToNextCell FW:0.026m
+TURN COMPLETE: yaw=-1.56333 target=-1.56345 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+WALL FAILSAFE: Stopping at 0.02618m (< 0.09000m)
+=== EARLY WALL FAILSAFE (dist=0.00000m) ===
+Real wall detected - rescanning cell(6,3)
+WALL CORRECTION: 0.02618m -> 0.08500m
+CORRECTION DONE: 0.08176m (err=-0.00324m) in 60 steps
+[696.5s] Cell(6,3) SOUTH - LoggingCell FW:0.082m
+Cell(6,3) walls=--ES
+Backtracked - skipping checkpoint detection
+ROTATE: 1.571 rad -> target 0.007
+[698.6s] Cell(6,3) SOUTH - TurningToNextCell2 FW:0.090m
+[700.6s] Cell(6,3) SOUTH - TurningToNextCell2 FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[702.6s] Cell(6,3) SOUTH - TurningToNextCell2 FW:0.090m
+TURN COMPLETE: yaw=0.00759 target=0.00747 err=-0.00012
+ROTATE: 1.57080 rad -> target 1.57839
+[704.6s] Cell(6,3) SOUTH - TurningToNextCell FW:0.090m
+[706.6s] Cell(6,3) SOUTH - TurningToNextCell FW:0.065m
+[708.6s] Cell(6,3) SOUTH - TurningToNextCell FW:0.066m
+TURN: Switching to FINE alignment (err=0.029)
+[710.7s] Cell(6,3) SOUTH - TurningToNextCell FW:0.084m
+TURN COMPLETE: yaw=1.57851 target=1.57839 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+WALL FAILSAFE: Stopping at 0.08341m (< 0.09000m)
+=== EARLY WALL FAILSAFE (dist=0.00000m) ===
+Real wall detected - rescanning cell(6,3)
+WALL CORRECTION: 0.08341m -> 0.08500m
+CORRECTION DONE: 0.06532m (err=-0.01968m) in 0 steps
+Cell(6,3) walls=-NE-
+ROTATE: -1.57080 rad -> target 0.00771
+[712.7s] Cell(6,3) NORTH - TurningToRight1 FW:0.090m
+[714.7s] Cell(6,3) NORTH - TurningToRight1 FW:0.090m
+TURN: Switching to FINE alignment (err=-0.029)
+[716.7s] Cell(6,3) NORTH - TurningToRight1 FW:0.090m
+[718.7s] Cell(6,3) NORTH - TurningToRight1 FW:0.090m
+TURN COMPLETE: yaw=0.00759 target=0.00771 err=0.00012
+ROTATE: 1.57080 rad -> target 1.57839
+[720.7s] Cell(6,3) EAST - TurningBackFromRight FW:0.071m
+[722.8s] Cell(6,3) EAST - TurningBackFromRight FW:0.064m
+TURN: Switching to FINE alignment (err=0.029)
+[724.8s] Cell(6,3) EAST - TurningBackFromRight FW:0.083m
+TURN COMPLETE: yaw=1.57851 target=1.57839 err=-0.00012
+ROTATE: 1.57080 rad -> target -3.13387
+[726.8s] Cell(6,3) NORTH - TurningToNextCell2 FW:0.064m
+[728.8s] Cell(6,3) NORTH - TurningToNextCell2 FW:0.090m
+[730.8s] Cell(6,3) NORTH - TurningToNextCell2 FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[732.8s] Cell(6,3) NORTH - TurningToNextCell2 FW:0.090m
+TURN COMPLETE: yaw=-3.13375 target=-3.13387 err=-0.00012
+ROTATE: 1.57080 rad -> target -1.56295
+[734.8s] Cell(6,3) NORTH - TurningToNextCell FW:0.090m
+[736.9s] Cell(6,3) NORTH - TurningToNextCell FW:0.064m
+TURN: Switching to FINE alignment (err=0.029)
+[738.9s] Cell(6,3) NORTH - TurningToNextCell FW:0.083m
+[740.9s] Cell(6,3) NORTH - TurningToNextCell FW:0.064m
+TURN COMPLETE: yaw=-1.56283 target=-1.56295 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+WALL FAILSAFE: Stopping at 0.08243m (< 0.09000m)
+=== EARLY WALL FAILSAFE (dist=0.00000m) ===
+Real wall detected - rescanning cell(6,3)
+WALL CORRECTION: 0.08243m -> 0.08500m
+CORRECTION DONE: 0.06698m (err=-0.01802m) in 2 steps
+Cell(6,3) walls=--ES
+Backtracked - skipping checkpoint detection
+ROTATE: 1.57080 rad -> target 0.00797
+[742.9s] Cell(6,3) SOUTH - TurningToNextCell2 FW:0.078m
+[744.9s] Cell(6,3) SOUTH - TurningToNextCell2 FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[746.9s] Cell(6,3) SOUTH - TurningToNextCell2 FW:0.087m
+TURN COMPLETE: yaw=0.00809 target=0.00797 err=-0.00012
+ROTATE: 1.57080 rad -> target 1.57889
+[749.0s] Cell(6,3) SOUTH - TurningToNextCell FW:0.090m
+[751.0s] Cell(6,3) SOUTH - TurningToNextCell FW:0.068m
+[753.0s] Cell(6,3) SOUTH - TurningToNextCell FW:0.082m
+TURN: Switching to FINE alignment (err=0.029)
+[755.0s] Cell(6,3) SOUTH - TurningToNextCell FW:0.083m
+TURN COMPLETE: yaw=1.57901 target=1.57889 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+WALL FAILSAFE: Stopping at 0.07958m (< 0.09000m)
+=== EARLY WALL FAILSAFE (dist=0.00000m) ===
+Real wall detected - rescanning cell(6,3)
+WALL CORRECTION: 0.07958m -> 0.08500m
+CORRECTION DONE: 0.06646m (err=-0.01854m) in 2 steps
+Cell(6,3) walls=-NE-
+ROTATE: -1.57080 rad -> target 0.00821
+[757.0s] Cell(6,3) NORTH - TurningToRight1 FW:0.067m
+[759.0s] Cell(6,3) NORTH - TurningToRight1 FW:0.090m
+[761.1s] Cell(6,3) NORTH - TurningToRight1 FW:0.090m
+TURN: Switching to FINE alignment (err=-0.029)
+[763.1s] Cell(6,3) NORTH - TurningToRight1 FW:0.090m
+TURN COMPLETE: yaw=0.00809 target=0.00821 err=0.00012
+ROTATE: 1.57080 rad -> target 1.57889
+[765.1s] Cell(6,3) EAST - TurningBackFromRight FW:0.090m
+[767.1s] Cell(6,3) EAST - TurningBackFromRight FW:0.064m
+[769.1s] Cell(6,3) EAST - TurningBackFromRight FW:0.083m
+TURN: Switching to FINE alignment (err=0.029)
+[771.1s] Cell(6,3) EAST - TurningBackFromRight FW:0.082m
+TURN COMPLETE: yaw=1.57901 target=1.57889 err=-0.00012
+ROTATE: 1.57080 rad -> target -3.13338
+[773.2s] Cell(6,3) NORTH - TurningToNextCell2 FW:0.090m
+[775.2s] Cell(6,3) NORTH - TurningToNextCell2 FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[777.2s] Cell(6,3) NORTH - TurningToNextCell2 FW:0.090m
+[779.2s] Cell(6,3) NORTH - TurningToNextCell2 FW:0.090m
+TURN COMPLETE: yaw=-3.13326 target=-3.13338 err=-0.00012
+ROTATE: 1.57080 rad -> target -1.56246
+[781.2s] Cell(6,3) NORTH - TurningToNextCell FW:0.090m
+[783.2s] Cell(6,3) NORTH - TurningToNextCell FW:0.066m
+TURN: Switching to FINE alignment (err=0.029)
+[785.2s] Cell(6,3) NORTH - TurningToNextCell FW:0.066m
+TURN COMPLETE: yaw=-1.56234 target=-1.56246 err=-0.00012
+[787.3s] Cell(6,3) NORTH - TurningToNextCell FW:0.065m
+FAST FORWARD: Starting 1-tile movement
+WALL FAILSAFE: Stopping at 0.06382m (< 0.09000m)
+=== EARLY WALL FAILSAFE (dist=0.00000m) ===
+Real wall detected - rescanning cell(6,3)
+WALL CORRECTION: 0.06382m -> 0.08500m
+CORRECTION DONE: 0.08317m (err=-0.00183m) in 72 steps
+[789.8s] Cell(6,3) SOUTH - LoggingCell FW:0.083m
+Cell(6,3) walls=--ES
+Backtracked - skipping checkpoint detection
+ROTATE: 1.571 rad -> target 0.008
+[791.8s] Cell(6,3) SOUTH - TurningToNextCell2 FW:0.090m
+[793.8s] Cell(6,3) SOUTH - TurningToNextCell2 FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[795.8s] Cell(6,3) SOUTH - TurningToNextCell2 FW:0.090m
+TURN COMPLETE: yaw=0.00858 target=0.00846 err=-0.00012
+ROTATE: 1.57080 rad -> target 1.57938
+[797.9s] Cell(6,3) SOUTH - TurningToNextCell FW:0.054m
+[799.9s] Cell(6,3) SOUTH - TurningToNextCell FW:0.027m
+[801.9s] Cell(6,3) SOUTH - TurningToNextCell FW:0.027m
+TURN: Switching to FINE alignment (err=0.029)
+[803.9s] Cell(6,3) SOUTH - TurningToNextCell FW:0.026m
+TURN COMPLETE: yaw=1.57950 target=1.57938 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+WALL FAILSAFE: Stopping at 0.02577m (< 0.09000m)
+=== EARLY WALL FAILSAFE (dist=0.00000m) ===
+Real wall detected - rescanning cell(6,3)
+WALL CORRECTION: 0.02577m -> 0.08500m
+CORRECTION DONE: 0.08335m (err=-0.00165m) in 133 steps
+[808.9s] Cell(6,3) NORTH - LoggingCell FW:0.083m
+Cell(6,3) walls=-NE-
+ROTATE: -1.571 rad -> target 0.009
+[810.9s] Cell(6,3) NORTH - TurningToRight1 FW:0.090m
+[813.0s] Cell(6,3) NORTH - TurningToRight1 FW:0.090m
+TURN: Switching to FINE alignment (err=-0.029)
+[815.0s] Cell(6,3) NORTH - TurningToRight1 FW:0.086m
+TURN COMPLETE: yaw=0.01079 target=0.00870 (timeout, err=-0.00209)
+ROTATE: 1.57080 rad -> target 1.58159
+[817.0s] Cell(6,3) EAST - TurningBackFromRight FW:0.085m
+[819.0s] Cell(6,3) EAST - TurningBackFromRight FW:0.090m
+[821.0s] Cell(6,3) EAST - TurningBackFromRight FW:0.083m
+TURN: Switching to FINE alignment (err=0.029)
+[823.0s] Cell(6,3) EAST - TurningBackFromRight FW:0.084m
+TURN COMPLETE: yaw=1.58171 target=1.58159 err=-0.00012
+ROTATE: 1.57080 rad -> target -3.13068
+[825.1s] Cell(6,3) NORTH - TurningToNextCell2 FW:0.090m
+[827.1s] Cell(6,3) NORTH - TurningToNextCell2 FW:0.090m
+[829.1s] Cell(6,3) NORTH - TurningToNextCell2 FW:0.090m
+TURN: Switching to FINE alignment (err=0.026)
+[831.1s] Cell(6,3) NORTH - TurningToNextCell2 FW:0.090m
+TURN COMPLETE: yaw=-3.13056 target=-3.13068 err=-0.00012
+ROTATE: 1.57080 rad -> target -1.55976
+[833.1s] Cell(6,3) NORTH - TurningToNextCell FW:0.029m
+[835.1s] Cell(6,3) NORTH - TurningToNextCell FW:0.026m
+TURN: Switching to FINE alignment (err=0.026)
+[837.2s] Cell(6,3) NORTH - TurningToNextCell FW:0.026m
+TURN COMPLETE: yaw=-1.55964 target=-1.55976 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+WALL FAILSAFE: Stopping at 0.02631m (< 0.09000m)
+=== EARLY WALL FAILSAFE (dist=0.00000m) ===
+Real wall detected - rescanning cell(6,3)
+WALL CORRECTION: 0.02631m -> 0.08500m
+CORRECTION DONE: 0.08298m (err=-0.00202m) in 133 steps
+[842.9s] Cell(6,3) SOUTH - LoggingCell FW:0.083m
+Cell(6,3) walls=--ES
+Backtracked - skipping checkpoint detection
+ROTATE: 1.571 rad -> target 0.011
+[844.9s] Cell(6,3) SOUTH - TurningToNextCell2 FW:0.090m
+[846.9s] Cell(6,3) SOUTH - TurningToNextCell2 FW:0.090m
+TURN: Switching to FINE alignment (err=0.029)
+[849.0s] Cell(6,3) SOUTH - TurningToNextCell2 FW:0.090m
+TURN COMPLETE: yaw=0.01129 target=0.01116 err=-0.00012
+ROTATE: 1.57080 rad -> target 1.58209
+[851.0s] Cell(6,3) SOUTH - TurningToNextCell FW:0.068m
+[853.0s] Cell(6,3) SOUTH - TurningToNextCell FW:0.028m
+[855.0s] Cell(6,3) SOUTH - TurningToNextCell FW:0.026m
+TURN: Switching to FINE alignment (err=0.029)
+[857.0s] Cell(6,3) SOUTH - TurningToNextCell FW:0.026m
+TURN COMPLETE: yaw=1.58221 target=1.58209 err=-0.00012
+FAST FORWARD: Starting 1-tile movement
+WALL FAILSAFE: Stopping at 0.02566m (< 0.09000m)
+=== EARLY WALL FAILSAFE (dist=0.00000m) ===
+Real wall detected - rescanning cell(6,3)
+WALL CORRECTION: 0.02566m -> 0.08500m
+CORRECTION DONE: 0.08311m (err=-0.00189m) in 131 steps
+[862.8s] Cell(6,3) NORTH - LoggingCell FW:0.083m
+Cell(6,3) walls=-NE-
+ROTATE: -1.571 rad -> target 0.011
