@@ -1,5 +1,4 @@
-build/release/maze_runner.o: maze_runner.cpp explorer.h motion_control.h \
-  sensing.h \
+build/release/main.o: main.cpp explorer.h motion_control.h sensing.h \
   /Applications/Webots.app/Contents/include/controller/cpp/webots/Camera.hpp \
   /Applications/Webots.app/Contents/include/controller/cpp/webots/Device.hpp \
   /Applications/Webots.app/Contents/include/controller/cpp/webots/../../c/webots/types.h \
