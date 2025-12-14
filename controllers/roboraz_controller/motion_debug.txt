@@ -1,0 +1,861 @@
+=== MOVING CONTROLLER DEBUG REPORT ===
+Initial Heading: 1.5709 rad
+Tile Size: 0.25m
+Fusion Alpha: 0.1
+========================================
+--- TIMESTAMP: 0.7360 ---
+State: ROTATING | Phase: COARSE
+Yaw: 1.57090 | Tgt: -3.14149 | Err: 1.57080
+OdomYaw: 1.57090 | GyroYaw: 0.00000
+TurnSpeed: 0.64000 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.64000 / 0.64000
+Sensors(L/R/F0/F7): 1.99805 / 1.99805 / 1.99805 / 1.99805
+----------------------------------------
+--- TIMESTAMP: 0.7680 ---
+State: ROTATING | Phase: COARSE
+Yaw: 1.58193 | Tgt: -3.14149 | Err: 1.55977
+OdomYaw: 1.58193 | GyroYaw: 0.97624
+TurnSpeed: 1.28000 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.28000 / 1.28000
+Sensors(L/R/F0/F7): 1.99951 / 1.99951 / 1.99951 / 1.99951
+----------------------------------------
+--- TIMESTAMP: 0.8000 ---
+State: ROTATING | Phase: COARSE
+Yaw: 1.61282 | Tgt: -3.14149 | Err: 1.52888
+OdomYaw: 1.61282 | GyroYaw: -2.78628
+TurnSpeed: 1.92000 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.92000 / 1.92000
+Sensors(L/R/F0/F7): 1.99988 / 1.99988 / 1.99988 / 1.99988
+----------------------------------------
+--- TIMESTAMP: 0.8320 ---
+State: ROTATING | Phase: COARSE
+Yaw: 1.65695 | Tgt: -3.14149 | Err: 1.48475
+OdomYaw: 1.65695 | GyroYaw: 2.55320
+TurnSpeed: 2.03738 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -2.03738 / 2.03738
+Sensors(L/R/F0/F7): 1.99997 / 1.99997 / 1.99997 / 1.99997
+----------------------------------------
+--- TIMESTAMP: 0.8640 ---
+State: ROTATING | Phase: COARSE
+Yaw: 1.70107 | Tgt: -3.14149 | Err: 1.44063
+OdomYaw: 1.70107 | GyroYaw: 2.86889
+TurnSpeed: 1.89882 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.89882 / 1.89882
+Sensors(L/R/F0/F7): 1.99999 / 1.99999 / 1.99999 / 1.99999
+----------------------------------------
+--- TIMESTAMP: 0.8960 ---
+State: ROTATING | Phase: COARSE
+Yaw: 1.74520 | Tgt: -3.14149 | Err: 1.39650
+OdomYaw: 1.74520 | GyroYaw: -0.06924
+TurnSpeed: 1.77474 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.77474 / 1.77474
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 0.9280 ---
+State: ROTATING | Phase: COARSE
+Yaw: 1.78492 | Tgt: -3.14149 | Err: 1.35678
+OdomYaw: 1.78492 | GyroYaw: 2.36656
+TurnSpeed: 1.67988 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.67988 / 1.67988
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 0.9600 ---
+State: ROTATING | Phase: COARSE
+Yaw: 1.82022 | Tgt: -3.14149 | Err: 1.32148
+OdomYaw: 1.82022 | GyroYaw: -0.13337
+TurnSpeed: 1.60974 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.60974 / 1.60974
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 0.9920 ---
+State: ROTATING | Phase: COARSE
+Yaw: 1.85552 | Tgt: -3.14149 | Err: 1.28618
+OdomYaw: 1.85552 | GyroYaw: -0.62756
+TurnSpeed: 1.54303 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.54303 / 1.54303
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.0240 ---
+State: ROTATING | Phase: COARSE
+Yaw: 1.89082 | Tgt: -3.14149 | Err: 1.25088
+OdomYaw: 1.89082 | GyroYaw: -2.35961
+TurnSpeed: 1.47907 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.47907 / 1.47907
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.0560 ---
+State: ROTATING | Phase: COARSE
+Yaw: 1.92612 | Tgt: -3.14149 | Err: 1.21558
+OdomYaw: 1.92612 | GyroYaw: -2.81624
+TurnSpeed: 1.41731 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.41731 / 1.41731
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.0880 ---
+State: ROTATING | Phase: COARSE
+Yaw: 1.95701 | Tgt: -3.14149 | Err: 1.18469
+OdomYaw: 1.95701 | GyroYaw: -1.76715
+TurnSpeed: 1.37497 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.37497 / 1.37497
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.1200 ---
+State: ROTATING | Phase: COARSE
+Yaw: 1.98790 | Tgt: -3.14149 | Err: 1.15380
+OdomYaw: 1.98790 | GyroYaw: -0.62257
+TurnSpeed: 1.33183 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.33183 / 1.33183
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.1520 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.01879 | Tgt: -3.14149 | Err: 1.12291
+OdomYaw: 2.01879 | GyroYaw: -0.94499
+TurnSpeed: 1.28805 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.28805 / 1.28805
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.1840 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.04526 | Tgt: -3.14149 | Err: 1.09644
+OdomYaw: 2.04526 | GyroYaw: -2.30169
+TurnSpeed: 1.26140 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.26140 / 1.26140
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.2160 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.07615 | Tgt: -3.14149 | Err: 1.06555
+OdomYaw: 2.07615 | GyroYaw: -2.36816
+TurnSpeed: 1.21450 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.21450 / 1.21450
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.2480 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.10263 | Tgt: -3.14149 | Err: 1.03907
+OdomYaw: 2.10263 | GyroYaw: 1.93711
+TurnSpeed: 1.18536 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.18536 / 1.18536
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.2800 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.12911 | Tgt: -3.14149 | Err: 1.01259
+OdomYaw: 2.12911 | GyroYaw: 1.00904
+TurnSpeed: 1.15410 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.15410 / 1.15410
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.3120 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.15558 | Tgt: -3.14149 | Err: 0.98612
+OdomYaw: 2.15558 | GyroYaw: 1.22558
+TurnSpeed: 1.12116 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.12116 / 1.12116
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.3440 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.18206 | Tgt: -3.14149 | Err: 0.95964
+OdomYaw: 2.18206 | GyroYaw: 2.30127
+TurnSpeed: 1.08685 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.08685 / 1.08685
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.3760 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.20412 | Tgt: -3.14149 | Err: 0.93758
+OdomYaw: 2.20412 | GyroYaw: -2.01051
+TurnSpeed: 1.06912 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.06912 / 1.06912
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.4080 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.23060 | Tgt: -3.14149 | Err: 0.91110
+OdomYaw: 2.23060 | GyroYaw: 2.09573
+TurnSpeed: 1.03067 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.03067 / 1.03067
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.4400 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.25266 | Tgt: -3.14149 | Err: 0.88904
+OdomYaw: 2.25266 | GyroYaw: 0.00972
+TurnSpeed: 1.00961 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -1.00961 / 1.00961
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.4720 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.27473 | Tgt: -3.14149 | Err: 0.86697
+OdomYaw: 2.27473 | GyroYaw: 0.61774
+TurnSpeed: 0.98615 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.98615 / 0.98615
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.5040 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.29679 | Tgt: -3.14149 | Err: 0.84491
+OdomYaw: 2.29679 | GyroYaw: -2.65921
+TurnSpeed: 0.96075 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.96075 / 0.96075
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.5360 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.31885 | Tgt: -3.14149 | Err: 0.82285
+OdomYaw: 2.31885 | GyroYaw: 2.13473
+TurnSpeed: 0.93382 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.93382 / 0.93382
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.5680 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.34092 | Tgt: -3.14149 | Err: 0.80078
+OdomYaw: 2.34092 | GyroYaw: 2.66942
+TurnSpeed: 0.90566 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.90566 / 0.90566
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.6000 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.35857 | Tgt: -3.14149 | Err: 0.78313
+OdomYaw: 2.35857 | GyroYaw: -2.07235
+TurnSpeed: 0.89416 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.89416 / 0.89416
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.6320 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.38063 | Tgt: -3.14149 | Err: 0.76107
+OdomYaw: 2.38063 | GyroYaw: -2.81836
+TurnSpeed: 0.86201 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.86201 / 0.86201
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.6640 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.39828 | Tgt: -3.14149 | Err: 0.74342
+OdomYaw: 2.39828 | GyroYaw: -2.39070
+TurnSpeed: 0.84733 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.84733 / 0.84733
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.6960 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.42034 | Tgt: -3.14149 | Err: 0.72136
+OdomYaw: 2.42034 | GyroYaw: 1.06851
+TurnSpeed: 0.81263 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.81263 / 0.81263
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.7280 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.43800 | Tgt: -3.14149 | Err: 0.70370
+OdomYaw: 2.43800 | GyroYaw: -0.11506
+TurnSpeed: 0.79591 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.79591 / 0.79591
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.7600 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.45565 | Tgt: -3.14149 | Err: 0.68605
+OdomYaw: 2.45565 | GyroYaw: 2.03751
+TurnSpeed: 0.77724 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.77724 / 0.77724
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.7920 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.47330 | Tgt: -3.14149 | Err: 0.66840
+OdomYaw: 2.47330 | GyroYaw: 0.88449
+TurnSpeed: 0.75700 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.75700 / 0.75700
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.8240 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.49095 | Tgt: -3.14149 | Err: 0.65075
+OdomYaw: 2.49095 | GyroYaw: 2.70808
+TurnSpeed: 0.73552 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.73552 / 0.73552
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.8560 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.50419 | Tgt: -3.14149 | Err: 0.63751
+OdomYaw: 2.50419 | GyroYaw: 0.43953
+TurnSpeed: 0.73069 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.73069 / 0.73069
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.8880 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.52184 | Tgt: -3.14149 | Err: 0.61986
+OdomYaw: 2.52184 | GyroYaw: -1.78135
+TurnSpeed: 0.70520 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.70520 / 0.70520
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.9200 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.53949 | Tgt: -3.14149 | Err: 0.60221
+OdomYaw: 2.53949 | GyroYaw: -2.30006
+TurnSpeed: 0.67952 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.67952 / 0.67952
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.9520 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.55273 | Tgt: -3.14149 | Err: 0.58897
+OdomYaw: 2.55273 | GyroYaw: -0.74131
+TurnSpeed: 0.67133 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.67133 / 0.67133
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 1.9840 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.57038 | Tgt: -3.14149 | Err: 0.57132
+OdomYaw: 2.57038 | GyroYaw: -0.12856
+TurnSpeed: 0.64315 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.64315 / 0.64315
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.0160 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.58361 | Tgt: -3.14149 | Err: 0.55809
+OdomYaw: 2.58361 | GyroYaw: 1.15027
+TurnSpeed: 0.63296 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.63296 / 0.63296
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.0480 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.59685 | Tgt: -3.14149 | Err: 0.54485
+OdomYaw: 2.59685 | GyroYaw: 0.74473
+TurnSpeed: 0.62085 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.62085 / 0.62085
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.0800 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.61009 | Tgt: -3.14149 | Err: 0.53161
+OdomYaw: 2.61009 | GyroYaw: -1.26635
+TurnSpeed: 0.60718 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.60718 / 0.60718
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.1120 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.62333 | Tgt: -3.14149 | Err: 0.51837
+OdomYaw: 2.62333 | GyroYaw: 0.54598
+TurnSpeed: 0.59227 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.59227 / 0.59227
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.1440 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.63657 | Tgt: -3.14149 | Err: 0.50513
+OdomYaw: 2.63657 | GyroYaw: -0.11796
+TurnSpeed: 0.57638 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.57638 / 0.57638
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.1760 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.64980 | Tgt: -3.14149 | Err: 0.49190
+OdomYaw: 2.64980 | GyroYaw: 2.19387
+TurnSpeed: 0.55969 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.55969 / 0.55969
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.2080 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.66304 | Tgt: -3.14149 | Err: 0.47866
+OdomYaw: 2.66304 | GyroYaw: 2.63694
+TurnSpeed: 0.54237 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.54237 / 0.54237
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.2400 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.67628 | Tgt: -3.14149 | Err: 0.46542
+OdomYaw: 2.67628 | GyroYaw: -0.39279
+TurnSpeed: 0.52454 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.52454 / 0.52454
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.2720 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.68952 | Tgt: -3.14149 | Err: 0.45218
+OdomYaw: 2.68952 | GyroYaw: -0.12892
+TurnSpeed: 0.50630 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.50630 / 0.50630
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.3040 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.69834 | Tgt: -3.14149 | Err: 0.44336
+OdomYaw: 2.69834 | GyroYaw: -2.82177
+TurnSpeed: 0.50540 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.50540 / 0.50540
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.3360 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.71158 | Tgt: -3.14149 | Err: 0.43012
+OdomYaw: 2.71158 | GyroYaw: 0.90013
+TurnSpeed: 0.48437 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.48437 / 0.48437
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.3680 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.72041 | Tgt: -3.14149 | Err: 0.42129
+OdomYaw: 2.72041 | GyroYaw: 0.59148
+TurnSpeed: 0.48123 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.48123 / 0.48123
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.4000 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.73365 | Tgt: -3.14149 | Err: 0.40805
+OdomYaw: 2.73365 | GyroYaw: 0.04439
+TurnSpeed: 0.45842 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.45842 / 0.45842
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.4320 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.74247 | Tgt: -3.14149 | Err: 0.39923
+OdomYaw: 2.74247 | GyroYaw: 2.17546
+TurnSpeed: 0.45385 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.45385 / 0.45385
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.4640 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.75130 | Tgt: -3.14149 | Err: 0.39040
+OdomYaw: 2.75130 | GyroYaw: 3.09919
+TurnSpeed: 0.44755 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.44755 / 0.44755
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.4960 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.76453 | Tgt: -3.14149 | Err: 0.37717
+OdomYaw: 2.76453 | GyroYaw: -2.97783
+TurnSpeed: 0.42221 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.42221 / 0.42221
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.5280 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.77336 | Tgt: -3.14149 | Err: 0.36834
+OdomYaw: 2.77336 | GyroYaw: -1.03899
+TurnSpeed: 0.41561 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.41561 / 0.41561
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.5600 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.78219 | Tgt: -3.14149 | Err: 0.35951
+OdomYaw: 2.78219 | GyroYaw: -0.11259
+TurnSpeed: 0.40769 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.40769 / 0.40769
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.5920 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.79101 | Tgt: -3.14149 | Err: 0.35069
+OdomYaw: 2.79101 | GyroYaw: -0.42882
+TurnSpeed: 0.39871 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.39871 / 0.39871
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.6240 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.79984 | Tgt: -3.14149 | Err: 0.34186
+OdomYaw: 2.79984 | GyroYaw: -2.40054
+TurnSpeed: 0.38887 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.38887 / 0.38887
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.6560 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.80866 | Tgt: -3.14149 | Err: 0.33304
+OdomYaw: 2.80866 | GyroYaw: 0.38951
+TurnSpeed: 0.37835 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.37835 / 0.37835
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.6880 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.81749 | Tgt: -3.14149 | Err: 0.32421
+OdomYaw: 2.81749 | GyroYaw: 1.14171
+TurnSpeed: 0.36729 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.36729 / 0.36729
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.7200 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.82631 | Tgt: -3.14149 | Err: 0.31539
+OdomYaw: 2.82631 | GyroYaw: 0.22565
+TurnSpeed: 0.35580 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.35580 / 0.35580
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.7520 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.83073 | Tgt: -3.14149 | Err: 0.31097
+OdomYaw: 2.83073 | GyroYaw: -2.68038
+TurnSpeed: 0.36160 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.36160 / 0.36160
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.7840 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.83955 | Tgt: -3.14149 | Err: 0.30215
+OdomYaw: 2.83955 | GyroYaw: 1.82769
+TurnSpeed: 0.34727 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.34727 / 0.34727
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.8160 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.84838 | Tgt: -3.14149 | Err: 0.29332
+OdomYaw: 2.84838 | GyroYaw: -2.26347
+TurnSpeed: 0.33316 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.33316 / 0.33316
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.8480 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.85720 | Tgt: -3.14149 | Err: 0.28450
+OdomYaw: 2.85720 | GyroYaw: -2.61514
+TurnSpeed: 0.31922 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.31922 / 0.31922
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.8800 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.86161 | Tgt: -3.14149 | Err: 0.28009
+OdomYaw: 2.86161 | GyroYaw: 0.98389
+TurnSpeed: 0.32308 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.32308 / 0.32308
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.9120 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.87044 | Tgt: -3.14149 | Err: 0.27126
+OdomYaw: 2.87044 | GyroYaw: -1.18983
+TurnSpeed: 0.30719 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.30719 / 0.30719
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.9440 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.87926 | Tgt: -3.14149 | Err: 0.26244
+OdomYaw: 2.87926 | GyroYaw: 0.69215
+TurnSpeed: 0.29183 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.29183 / 0.29183
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 2.9760 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.88368 | Tgt: -3.14149 | Err: 0.25802
+OdomYaw: 2.88368 | GyroYaw: -0.23401
+TurnSpeed: 0.29454 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.29454 / 0.29454
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.0080 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.89250 | Tgt: -3.14149 | Err: 0.24920
+OdomYaw: 2.89250 | GyroYaw: -0.68947
+TurnSpeed: 0.27774 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.27774 / 0.27774
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.0400 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.89692 | Tgt: -3.14149 | Err: 0.24478
+OdomYaw: 2.89692 | GyroYaw: 2.19056
+TurnSpeed: 0.27930 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.27930 / 0.27930
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.0720 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.90133 | Tgt: -3.14149 | Err: 0.24037
+OdomYaw: 2.90133 | GyroYaw: -0.94741
+TurnSpeed: 0.27922 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.27922 / 0.27922
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.1040 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.91015 | Tgt: -3.14149 | Err: 0.23155
+OdomYaw: 2.91015 | GyroYaw: 2.23419
+TurnSpeed: 0.26019 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.26019 / 0.26019
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.1360 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.91457 | Tgt: -3.14149 | Err: 0.22713
+OdomYaw: 2.91457 | GyroYaw: 2.15611
+TurnSpeed: 0.25996 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.25996 / 0.25996
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.1680 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.92339 | Tgt: -3.14149 | Err: 0.21831
+OdomYaw: 2.92339 | GyroYaw: 1.95701
+TurnSpeed: 0.24081 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.24081 / 0.24081
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.2000 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.92780 | Tgt: -3.14149 | Err: 0.21390
+OdomYaw: 2.92780 | GyroYaw: -1.40869
+TurnSpeed: 0.24049 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.24049 / 0.24049
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.2320 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.93222 | Tgt: -3.14149 | Err: 0.20948
+OdomYaw: 2.93222 | GyroYaw: 1.31006
+TurnSpeed: 0.23891 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.23891 / 0.23891
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.2640 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.93663 | Tgt: -3.14149 | Err: 0.20507
+OdomYaw: 2.93663 | GyroYaw: -2.61385
+TurnSpeed: 0.23632 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.23632 / 0.23632
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.2960 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.94104 | Tgt: -3.14149 | Err: 0.20066
+OdomYaw: 2.94104 | GyroYaw: -0.34766
+TurnSpeed: 0.23293 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.23293 / 0.23293
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.3280 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.94987 | Tgt: -3.14149 | Err: 0.19183
+OdomYaw: 2.94987 | GyroYaw: 1.24912
+TurnSpeed: 0.21124 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.21124 / 0.21124
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.3600 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.95428 | Tgt: -3.14149 | Err: 0.18742
+OdomYaw: 2.95428 | GyroYaw: -0.88758
+TurnSpeed: 0.20889 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.20889 / 0.20889
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.3920 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.95869 | Tgt: -3.14149 | Err: 0.18301
+OdomYaw: 2.95869 | GyroYaw: 3.03090
+TurnSpeed: 0.20569 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.20569 / 0.20569
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.4240 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.96311 | Tgt: -3.14149 | Err: 0.17859
+OdomYaw: 2.96311 | GyroYaw: -0.02872
+TurnSpeed: 0.20180 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.20180 / 0.20180
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.4560 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.96752 | Tgt: -3.14149 | Err: 0.17418
+OdomYaw: 2.96752 | GyroYaw: 2.53858
+TurnSpeed: 0.19737 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.19737 / 0.19737
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.4880 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.97193 | Tgt: -3.14149 | Err: 0.16977
+OdomYaw: 2.97193 | GyroYaw: -1.92390
+TurnSpeed: 0.19250 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.19250 / 0.19250
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.5200 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.97634 | Tgt: -3.14149 | Err: 0.16536
+OdomYaw: 2.97634 | GyroYaw: -0.81705
+TurnSpeed: 0.18728 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.18728 / 0.18728
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.5520 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.98076 | Tgt: -3.14149 | Err: 0.16094
+OdomYaw: 2.98076 | GyroYaw: -0.57540
+TurnSpeed: 0.18178 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.18178 / 0.18178
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.5840 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.98517 | Tgt: -3.14149 | Err: 0.15653
+OdomYaw: 2.98517 | GyroYaw: -1.29418
+TurnSpeed: 0.17605 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.17605 / 0.17605
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.6160 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.98958 | Tgt: -3.14149 | Err: 0.15212
+OdomYaw: 2.98958 | GyroYaw: -2.89748
+TurnSpeed: 0.17015 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.17015 / 0.17015
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.6480 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.98958 | Tgt: -3.14149 | Err: 0.15212
+OdomYaw: 2.98958 | GyroYaw: 0.79713
+TurnSpeed: 0.18176 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.18176 / 0.18176
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.6800 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.99399 | Tgt: -3.14149 | Err: 0.14771
+OdomYaw: 2.99399 | GyroYaw: 0.08210
+TurnSpeed: 0.17339 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.17339 / 0.17339
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.7120 ---
+State: ROTATING | Phase: COARSE
+Yaw: 2.99841 | Tgt: -3.14149 | Err: 0.14329
+OdomYaw: 2.99841 | GyroYaw: -2.17489
+TurnSpeed: 0.16537 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.16537 / 0.16537
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.7440 ---
+State: ROTATING | Phase: COARSE
+Yaw: 3.00282 | Tgt: -3.14149 | Err: 0.13888
+OdomYaw: 3.00282 | GyroYaw: 0.69114
+TurnSpeed: 0.15764 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.15764 / 0.15764
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.7760 ---
+State: ROTATING | Phase: COARSE
+Yaw: 3.00723 | Tgt: -3.14149 | Err: 0.13447
+OdomYaw: 3.00723 | GyroYaw: 2.23145
+TurnSpeed: 0.15012 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.15012 / 0.15012
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.8080 ---
+State: ROTATING | Phase: COARSE
+Yaw: 3.01165 | Tgt: -3.14149 | Err: 0.13005
+OdomYaw: 3.01165 | GyroYaw: 2.45036
+TurnSpeed: 0.14279 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.14279 / 0.14279
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.8400 ---
+State: ROTATING | Phase: COARSE
+Yaw: 3.01165 | Tgt: -3.14149 | Err: 0.13005
+OdomYaw: 3.01165 | GyroYaw: 1.50096
+TurnSpeed: 0.15325 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.15325 / 0.15325
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.8720 ---
+State: ROTATING | Phase: COARSE
+Yaw: 3.01606 | Tgt: -3.14149 | Err: 0.12564
+OdomYaw: 3.01606 | GyroYaw: 2.27090
+TurnSpeed: 0.14396 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.14396 / 0.14396
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.9040 ---
+State: ROTATING | Phase: COARSE
+Yaw: 3.02047 | Tgt: -3.14149 | Err: 0.12123
+OdomYaw: 3.02047 | GyroYaw: 1.51787
+TurnSpeed: 0.13521 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.13521 / 0.13521
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.9360 ---
+State: ROTATING | Phase: COARSE
+Yaw: 3.02488 | Tgt: -3.14149 | Err: 0.11682
+OdomYaw: 3.02488 | GyroYaw: -0.68636
+TurnSpeed: 0.12689 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.12689 / 0.12689
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 3.9680 ---
+State: ROTATING | Phase: COARSE
+Yaw: 3.02488 | Tgt: -3.14149 | Err: 0.11682
+OdomYaw: 3.02488 | GyroYaw: 1.88046
+TurnSpeed: 0.13655 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.13655 / 0.13655
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 4.0000 ---
+State: ROTATING | Phase: COARSE
+Yaw: 3.02930 | Tgt: -3.14149 | Err: 0.11240
+OdomYaw: 3.02930 | GyroYaw: -0.15675
+TurnSpeed: 0.12664 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.12664 / 0.12664
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 4.0320 ---
+State: ROTATING | Phase: COARSE
+Yaw: 3.03371 | Tgt: -3.14149 | Err: 0.10799
+OdomYaw: 3.03371 | GyroYaw: 2.47421
+TurnSpeed: 0.11738 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.11738 / 0.11738
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 4.0640 ---
+State: ROTATING | Phase: COARSE
+Yaw: 3.03371 | Tgt: -3.14149 | Err: 0.10799
+OdomYaw: 3.03371 | GyroYaw: -2.74053
+TurnSpeed: 0.12630 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.12630 / 0.12630
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 4.0960 ---
+State: ROTATING | Phase: COARSE
+Yaw: 3.03812 | Tgt: -3.14149 | Err: 0.10358
+OdomYaw: 3.03812 | GyroYaw: -0.21978
+TurnSpeed: 0.11579 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.11579 / 0.11579
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
+--- TIMESTAMP: 4.1280 ---
+State: ROTATING | Phase: COARSE
+Yaw: 3.03812 | Tgt: -3.14149 | Err: 0.10358
+OdomYaw: 3.03812 | GyroYaw: 0.46668
+TurnSpeed: 0.12370 | SettleTime: 0.00000 / 0.08000s
+Motors(L/R): -0.12370 / 0.12370
+Sensors(L/R/F0/F7): 2.00000 / 2.00000 / 2.00000 / 2.00000
+----------------------------------------
