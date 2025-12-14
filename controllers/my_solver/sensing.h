@@ -38,6 +38,7 @@ private:
 
   // Cache Variables (The "Snapshot")
   double cached_dist_meters[8];
+  double cached_raw_dist[8]; // Corrected raw values for wall detection
   double cached_enc_left;
   double cached_enc_right;
   FloorColor cached_floor_color;
@@ -45,6 +46,13 @@ private:
   // E-puck Physical Constants
   const double WHEEL_RADIUS = 0.0205;
   const double AXLE_LENGTH = 0.052;
+
+  // Calibration Constants for Distance Sensors (from methal_sensing.h)
+  const double INTERFERENCE_FACTOR = 0.05; // Light subtraction factor
+  const double POWER_COEFF_A = 3.7;        // Mid Range Scale
+  const double POWER_COEFF_B = -0.5;       // Mid Range Slope
+  const double CLOSE_COEFF_A = 600000.0;   // Close Range Scale
+  const double CLOSE_COEFF_B = -2.1;       // Close Range Slope (Steep drop-off)
 
   // YAW VARIABLES (Separated)
   double yaw_odometry;
@@ -103,6 +111,41 @@ private:
       return COLOR_RED;
 
     return COLOR_NONE;
+  }
+
+  // Helper: Check specific Region of Interest (ROI) for Green
+  // Used by is2SquaresLeftGreen / RightGreen to detect green walls ahead
+  bool checkRegionForGreen(int startX, int endX, int startY, int endY) {
+    if (!camera)
+      return false;
+    const unsigned char *image = camera->getImage();
+    if (!image)
+      return false;
+
+    int w = camera->getWidth();
+    int h = camera->getHeight();
+    long r = 0, g = 0, b = 0;
+    int count = 0;
+
+    for (int x = startX; x < endX; x++) {
+      for (int y = startY; y < endY; y++) {
+        if (x >= 0 && x < w && y >= 0 && y < h) {
+          r += webots::Camera::imageGetRed(image, w, x, y);
+          g += webots::Camera::imageGetGreen(image, w, x, y);
+          b += webots::Camera::imageGetBlue(image, w, x, y);
+          count++;
+        }
+      }
+    }
+
+    if (count == 0)
+      return false;
+    r /= count;
+    g /= count;
+    b /= count;
+
+    // Green Threshold: Green must be significantly brighter than Red and Blue
+    return (g > r + 30 && g > b + 30);
   }
 
   void initSensors() {
@@ -172,6 +215,12 @@ public:
 
     lastLeftVal = 0.0;
     lastRightVal = 0.0;
+
+    // Initialize distance cache to max (no walls detected until updated)
+    for (int i = 0; i < 8; i++) {
+      cached_dist_meters[i] = 0.40; // Max distance = no wall
+      cached_raw_dist[i] = 0.0;     // No signal = no wall
+    }
 
     initSensors();
   }
@@ -251,20 +300,37 @@ public:
       }
     }
 
-    // C. Update Distance Sensors (Power Law Linearization)
+    // C. Update Distance Sensors with Light Interference Correction
+    // From methal_sensing.h - corrects for ambient light affecting IR sensors
     for (int i = 0; i < 8; i++) {
       if (i < distanceSensors.size()) {
-        double raw = distanceSensors[i]->getValue();
+        double rawIR = distanceSensors[i]->getValue();
 
+        // Apply light interference correction
+        double ambientLight = 0.0;
+        if (i < (int)lightSensors.size()) {
+          ambientLight = lightSensors[i]->getValue();
+        }
+
+        // Remove ambient light interference (INTERFERENCE_FACTOR = 0.05)
+        double correctedRaw = rawIR - (ambientLight * 0.05);
+        if (correctedRaw < 20.0)
+          correctedRaw = 20.0;
+
+        // Store corrected raw for wall detection
+        cached_raw_dist[i] = correctedRaw;
+
+        // Convert to meters using power law
         double meters;
-        if (raw < 80.0) {
+        if (correctedRaw < 80.0) {
           meters = 2.0; // Far away / Infinity
         } else {
-          meters = 0.185 * pow(raw / 100.0, -0.70);
+          meters = 0.185 * pow(correctedRaw / 100.0, -0.70);
         }
 
         // Filter: 60% New, 40% Old
-        cached_dist_meters[i] = (0.6 * meters) + (0.4 * cached_dist_meters[i]);
+        cached_dist_meters[i] =
+            (0.75 * meters) + (0.25 * cached_dist_meters[i]);
       }
     }
 
@@ -311,37 +377,145 @@ public:
   double getRightEncoder() { return cached_enc_right; }
   FloorColor getFloorColor() { return cached_floor_color; }
 
-  // Wall Helpers - thresholds based on sensor analysis
-  // Sensors start detecting at ~0.90m (raw=110), saturate at ~0.014m
-  // (raw=3800+)
+  // Wall Helpers - use RAW sensor values for reliable wall detection
+  // Calibration: raw=40→~0.33m, raw=60→~0.27m, raw=80→~0.22m, raw=400→~0.08m
   bool isWallAtFront() {
-    return (getDistance(0) < 0.90) &&
-           (getDistance(7) < 0.90); // 90cm detection range
+    // Check RAW values directly for walls at exploration distance
+    double raw0 = getRawDistance(0);
+    double raw7 = getRawDistance(7);
+    // Threshold: raw > 30 means wall within detection range (lowered for dark
+    // walls)
+    return (raw0 > 30.0) || (raw7 > 30.0);
   }
   bool isWallAtBack() {
-    return (getDistance(3) < 0.1) && (getDistance(4) < 0.1);
+    return (getRawDistance(3) > 150.0) && (getRawDistance(4) > 150.0);
   }
-  bool isWallAtLeft() { return (getDistance(5) < 0.90); }
-  bool isWallAtRight() { return (getDistance(2) < 0.90); }
+  bool isWallAtLeft() {
+    // PS5 is left sensor
+    return getRawDistance(5) > 60.0; // Wall within ~0.27m
+  }
+  bool isWallAtRight() {
+    // PS2 is right sensor
+    return getRawDistance(2) > 60.0; // Wall within ~0.27m
+  }
 
+  // Specialized Front Distance (Averaged + Corrected) - from methal_sensing.h
   double getDistanceToFrontWall() {
-    double d1 = getDistance(0);
-    double d2 = getDistance(7);
-    if (d1 > 1.5 || d2 > 1.5) // Increased threshold for "no wall"
-      return 2.0;
-    return (d1 + d2) / 2.0;
+    int ids[2] = {0, 7};
+    double distances[2] = {0.0, 0.0};
+
+    // Calculate raw distance for both front sensors
+    for (int k = 0; k < 2; k++) {
+      int i = ids[k];
+      double rawIR = distanceSensors[i]->getValue();
+      double ambientLight =
+          (i < (int)lightSensors.size()) ? lightSensors[i]->getValue() : 0.0;
+
+      double trueSignal = rawIR - (ambientLight * INTERFERENCE_FACTOR);
+      if (trueSignal < 20.0)
+        trueSignal = 20.0;
+
+      double meters = 0.0;
+      if (trueSignal > 1800.0) {
+        // Zone 1: CLOSE (< 5cm, Crash Imminent)
+        meters = CLOSE_COEFF_A * pow(trueSignal, CLOSE_COEFF_B);
+      } else if (trueSignal > 300.0) {
+        // Zone 2: FAR (5-9cm) - Max sensor detection range
+        // Linear interpolation: raw=300 → 0.09m, raw=1800 → 0.05m
+        double normalized = (trueSignal - 300.0) / (1800.0 - 300.0);
+        meters = 0.09 - (normalized * (0.09 - 0.05));
+      } else {
+        // NO WALL - below detection threshold (raw <= 300)
+        // Return max distance to indicate no wall detected
+        meters = 0.25;
+      }
+      distances[k] = meters;
+    }
+
+    double avgDistance = (distances[0] + distances[1]) / 2.0;
+
+    // Geometric Correction (Sensors angled 13 degrees)
+    // cos(13°) = cos(13 * π/180) = 0.9744
+    double correctedDistance = avgDistance * 0.9744;
+
+    // Clamp max range to 9cm (max sensor range)
+    // If distance > 0.09m, sensor can't reliably detect
+    if (correctedDistance > 0.09)
+      return 0.09;
+    return correctedDistance;
   }
   double getDistanceToLeftWall() { return getDistance(5); }
   double getDistanceToRightWall() { return getDistance(2); }
+
+  // Returns true if front wall is predominantly green (>50% coverage)
+  bool isFrontWallGreen() {
+    if (!camera)
+      return false;
+    const unsigned char *image = camera->getImage();
+    if (!image)
+      return false;
+
+    int w = camera->getWidth();
+    int h = camera->getHeight();
+    int greenPixelCount = 0;
+    int totalPixels = w * h;
+
+    for (int x = 0; x < w; x++) {
+      for (int y = 0; y < h; y++) {
+        int r = webots::Camera::imageGetRed(image, w, x, y);
+        int g = webots::Camera::imageGetGreen(image, w, x, y);
+        int b = webots::Camera::imageGetBlue(image, w, x, y);
+
+        // Green threshold: green channel significantly higher than red and blue
+        if (g > (r + 20) && g > (b + 20)) {
+          greenPixelCount++;
+        }
+      }
+    }
+
+    double greenRatio = (double)greenPixelCount / (double)totalPixels;
+    return (greenRatio > 0.50); // 50% threshold
+  }
+
+  // Lookahead: Check for green wall on LEFT side (next cell's left)
+  // Scans left 20% of camera view, middle vertical band
+  bool is2SquaresLeftGreen() {
+    if (!camera)
+      return false;
+    int w = camera->getWidth();
+    int h = camera->getHeight();
+    // Left 20% of screen, 20%-55% vertical band
+    return checkRegionForGreen(0, (int)(w * 0.20), (int)(h * 0.20),
+                               (int)(h * 0.55));
+  }
+
+  // Lookahead: Check for green wall on RIGHT side (next cell's right)
+  // Scans right 20% of camera view, middle vertical band
+  bool is2SquaresRightGreen() {
+    if (!camera)
+      return false;
+    int w = camera->getWidth();
+    int h = camera->getHeight();
+    // Right 20% of screen, 20%-55% vertical band
+    return checkRegionForGreen((int)(w * 0.80), w, (int)(h * 0.20),
+                               (int)(h * 0.55));
+  }
 
   void setLEDs(bool on) {
     for (auto *l : leds)
       l->set(on ? 1 : 0);
   }
 
-  // DEBUG: Get RAW sensor value (before linearization) to diagnose sensor
-  // issues Returns -1 if sensor not available
+  // Get corrected raw sensor value (with light interference removed)
+  // Used for wall detection thresholds
   double getRawDistance(int index) {
+    if (index < 0 || index >= 8)
+      return 0.0;
+    return cached_raw_dist[index];
+  }
+
+  // Get truly raw sensor value (no correction) for debugging
+  double getUncorrectedRawDistance(int index) {
     if (index < 0 || index >= (int)distanceSensors.size())
       return -1.0;
     return distanceSensors[index]->getValue();

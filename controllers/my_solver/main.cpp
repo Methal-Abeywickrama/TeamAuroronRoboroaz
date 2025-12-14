@@ -1,73 +1,145 @@
-#include <iostream>
-#include <webots/Supervisor.hpp>
+// DFS Maze Exploration - Main Controller
+// Uses explorer.h for DFS, navigator.h for data, motion_control.h for movement
 
+#include "explorer.h"
 #include "motion_control.h"
+#include "navigator.h"
 #include "sensing.h"
-// #include "testingfunctions.h"  // No longer needed for moveForwardFast
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <webots/Robot.hpp>
 
-using namespace webots;
-using namespace Sensor;
-using namespace Motion;
+// Tee buffer: writes to both console and file
+class TeeBuffer : public std::streambuf {
+public:
+  TeeBuffer(std::streambuf *console, std::streambuf *file)
+      : console_(console), file_(file) {}
 
-// ============================================================================
-// MAIN FUNCTION - Test moveForwardFast (now in MotionController)
-// ============================================================================
-int main(int argc, char **argv) {
-  // 1. Initialize Robot
-  Supervisor *robot = new Supervisor();
-  int timeStep = (int)robot->getBasicTimeStep();
-
-  // 2. Initialize Sensing
-  Sensing *sensing = new Sensing(robot, timeStep);
-
-  // 3. Initial Stabilization
-  std::cout << "Stabilizing..." << std::endl;
-  for (int i = 0; i < 20; i++) {
-    robot->step(timeStep);
-    sensing->update();
+protected:
+  int overflow(int c) override {
+    if (c == EOF)
+      return !EOF;
+    if (console_->sputc(c) == EOF)
+      return EOF;
+    if (file_->sputc(c) == EOF)
+      return EOF;
+    return c;
   }
 
-  // 4. Calibrate Gyro
-  std::cout << "Calibrating Gyro..." << std::endl;
-  sensing->calibrateGyro(50);
+  int sync() override {
+    console_->pubsync();
+    file_->pubsync();
+    return 0;
+  }
 
-  // 5. Create MotionController
-  MovingController motion(robot, sensing);
+private:
+  std::streambuf *console_;
+  std::streambuf *file_;
+};
 
-  // =========================================================================
-  // TEST: 1-tile movement with wall correction (using MotionController)
-  // Target: Robot center at 125mm from wall (sensor reads 90mm)
-  // =========================================================================
-  std::cout << "\n>>> 5-TILE TEST WITH WALLFAILSAFE & CORRECTION <<<"
-            << std::endl;
-  std::cout << "Moving 5 tiles. Wall correction logic runs after each tile."
-            << std::endl;
-  std::cout << "----------------------------------------" << std::endl;
+int main() {
+  // Open debug file FIRST (before any cout)
+  std::ofstream debugFile("debug_report.txt");
 
-  for (int i = 0; i < 5; i++) {
-    std::cout << "\n=== MOVING TILE " << (i + 1) << "/5 ===" << std::endl;
-    motion.moveForwardFast();
+  // Save original cout buffer and set up tee
+  std::streambuf *originalCoutBuf = std::cout.rdbuf();
+  TeeBuffer teeBuf(originalCoutBuf, debugFile.rdbuf());
+  std::cout.rdbuf(&teeBuf);
 
-    // Check for wall and correct position if detected
-    if (motion.hasWallInFront()) {
-      std::cout << "Wall detected - correcting to 90mm..." << std::endl;
-      motion.correctToWall(0.09000); // 90mm sensor = 125mm center
-    } else {
-      std::cout << "No wall in range" << std::endl;
+  webots::Robot robot;
+  int timeStep = (int)robot.getBasicTimeStep();
+  double dt = timeStep / 1000.0;
+
+  // Initialize components
+  Sensor::Sensing sensing(&robot, timeStep);
+  Motion::MovingController motion(&robot, &sensing);
+  Navigation::Navigator navigator;
+
+  // Initialize logger
+  navigator.initLogger("exploration_log.txt");
+
+  // Create explorer
+  Exploration::Explorer explorer(&robot, &sensing, &motion, &navigator);
+
+  // Calibrate gyro
+  std::cout << "Calibrating gyro..." << std::endl;
+  sensing.calibrateGyro(20);
+
+  std::cout << "\n========================================" << std::endl;
+  std::cout << "     DFS MAZE EXPLORATION" << std::endl;
+  std::cout << "========================================" << std::endl;
+  std::cout << "Grid: 12x12" << std::endl;
+  std::cout << "Start: (0,0) bottom-right, facing NORTH" << std::endl;
+  std::cout << "----------------------------------------\n" << std::endl;
+
+  // Start exploration
+  explorer.start();
+
+  // Main loop
+  double lastStatusTime = 0;
+  while (robot.step(timeStep) != -1) {
+    sensing.update();
+
+    // Run explorer
+    bool complete = explorer.update(dt);
+
+    // Print status every 2 seconds (TeeBuffer writes to both console and file)
+    double now = robot.getTime();
+    if (now - lastStatusTime > 2.0) {
+      std::cout << std::fixed << std::setprecision(1);
+      std::cout << "[" << now << "s] Cell(" << explorer.getCurrentX() << ","
+                << explorer.getCurrentY() << ") " << explorer.getHeadingStr()
+                << " - " << explorer.getStateStr()
+                << " FW:" << std::setprecision(3)
+                << sensing.getDistanceToFrontWall() << "m" << std::endl;
+      lastStatusTime = now;
+    }
+
+    if (complete) {
+      // Check what type of completion
+      if (explorer.isDestinationReached()) {
+        std::cout << "\n========================================" << std::endl;
+        std::cout << "     MISSION COMPLETE!" << std::endl;
+        std::cout << "========================================" << std::endl;
+        std::cout << "Robot has reached the destination." << std::endl;
+      } else {
+        std::cout << "\n========================================" << std::endl;
+        std::cout << "     EXPLORATION/NAVIGATION COMPLETE!" << std::endl;
+        std::cout << "========================================" << std::endl;
+      }
+
+      // Print final position
+      std::cout << "Final position: (" << explorer.getCurrentX() << ","
+                << explorer.getCurrentY() << ")" << std::endl;
+
+      // Print map
+      std::cout << "\nExplored Map:" << std::endl;
+      navigator.debugPrintMap();
+
+      // Print checkpoints
+      auto checkpoints = navigator.getMap().getCheckpoints();
+      std::cout << "\nCheckpoints found: " << checkpoints.size() << std::endl;
+      for (const auto &cp : checkpoints) {
+        std::cout << "  (" << cp.x << "," << cp.y << ")" << std::endl;
+      }
+
+      // Destination
+      auto dest = navigator.getDestination();
+      std::cout << "\nCalculated Destination: (" << dest.x << "," << dest.y
+                << ")" << std::endl;
+
+      navigator.flushLog();
+
+      // Idle loop
+      std::cout << "\nRobot idle. Simulation continues..." << std::endl;
+      while (robot.step(timeStep) != -1) {
+        sensing.update();
+      }
+      break;
     }
   }
 
-  std::cout << "----------------------------------------" << std::endl;
-  std::cout << ">>> TEST COMPLETE <<<" << std::endl;
-  std::cout << "Check testing_debugs.txt for detailed log" << std::endl;
-
-  // 6. Keep simulation running briefly to see final position
-  for (int i = 0; i < 50; i++) {
-    robot->step(timeStep);
-  }
-
-  // 7. Cleanup
-  delete sensing;
-  delete robot;
   return 0;
 }

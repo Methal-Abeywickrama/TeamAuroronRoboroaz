@@ -21,3 +21,11 @@ __pycache__/
 
 # Local Config
 CMakeLists.txt
+
+# Debug and log files
+motion_debug.txt
+exploration_log.txt
+maze_debu_log.txt
+maze_explore.txt
+testing_debugs.txt
+debug_report.txt
