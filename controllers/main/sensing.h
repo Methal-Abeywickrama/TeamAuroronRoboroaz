@@ -113,6 +113,41 @@ private:
     return COLOR_NONE;
   }
 
+  // Helper: Check specific Region of Interest (ROI) for Green
+  // Used by is2SquaresLeftGreen / RightGreen to detect green walls ahead
+  bool checkRegionForGreen(int startX, int endX, int startY, int endY) {
+    if (!camera)
+      return false;
+    const unsigned char *image = camera->getImage();
+    if (!image)
+      return false;
+
+    int w = camera->getWidth();
+    int h = camera->getHeight();
+    long r = 0, g = 0, b = 0;
+    int count = 0;
+
+    for (int x = startX; x < endX; x++) {
+      for (int y = startY; y < endY; y++) {
+        if (x >= 0 && x < w && y >= 0 && y < h) {
+          r += webots::Camera::imageGetRed(image, w, x, y);
+          g += webots::Camera::imageGetGreen(image, w, x, y);
+          b += webots::Camera::imageGetBlue(image, w, x, y);
+          count++;
+        }
+      }
+    }
+
+    if (count == 0)
+      return false;
+    r /= count;
+    g /= count;
+    b /= count;
+
+    // Green Threshold: Green must be significantly brighter than Red and Blue
+    return (g > r + 30 && g > b + 30);
+  }
+
   void initSensors() {
     // 1. Distance Sensors
     std::string psNames[8] = {"ps0", "ps1", "ps2", "ps3",
@@ -440,6 +475,30 @@ public:
 
     double greenRatio = (double)greenPixelCount / (double)totalPixels;
     return (greenRatio > 0.50); // 50% threshold
+  }
+
+  // Lookahead: Check for green wall on LEFT side (next cell's left)
+  // Scans left 20% of camera view, middle vertical band
+  bool is2SquaresLeftGreen() {
+    if (!camera)
+      return false;
+    int w = camera->getWidth();
+    int h = camera->getHeight();
+    // Left 20% of screen, 20%-55% vertical band
+    return checkRegionForGreen(0, (int)(w * 0.20), (int)(h * 0.20),
+                               (int)(h * 0.55));
+  }
+
+  // Lookahead: Check for green wall on RIGHT side (next cell's right)
+  // Scans right 20% of camera view, middle vertical band
+  bool is2SquaresRightGreen() {
+    if (!camera)
+      return false;
+    int w = camera->getWidth();
+    int h = camera->getHeight();
+    // Right 20% of screen, 20%-55% vertical band
+    return checkRegionForGreen((int)(w * 0.80), w, (int)(h * 0.20),
+                               (int)(h * 0.55));
   }
 
   void setLEDs(bool on) {

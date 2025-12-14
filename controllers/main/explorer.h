@@ -68,6 +68,13 @@ private:
   bool pendingFrontWall_ = false; // Flag: add front wall after next scan
   bool isBacktracking_ =
       false; // Flag: skip checkpoint detection for visited cells
+  bool hasLeftWall_ = false; // Cache left wall detection for conditional turns
+  bool hasRightWall_ =
+      false; // Cache right wall detection for conditional turns
+  bool pendingLeftGreen_ =
+      false; // Lookahead: potential green on LEFT in next cell
+  bool pendingRightGreen_ =
+      false; // Lookahead: potential green on RIGHT in next cell
 
   // Path execution variables (for destination navigation)
   std::vector<char> pathDirections_;
@@ -132,6 +139,10 @@ private:
     bool left = sensing_->isWallAtLeft();
     bool right = sensing_->isWallAtRight();
     bool back = false;
+
+    // Cache for conditional turn logic (skip turns if no wall to check)
+    hasLeftWall_ = left;
+    hasRightWall_ = right;
 
     // Map sensor directions to absolute directions based on heading
     bool absWalls[4] = {false, false, false, false}; // W, N, E, S
@@ -440,8 +451,23 @@ public:
         logCheckpoint();
         state_ = ExplorerState::FindingNextCell; // Skip left/right check
       } else {
-        state_ = ExplorerState::TurningToLeft;
-        motion_->turnLeft();
+        // Decide whether to check LEFT side (IR detected OR lookahead detected
+        // green)
+        bool shouldCheckLeft = hasLeftWall_ || pendingLeftGreen_;
+        // Decide whether to check RIGHT side
+        bool shouldCheckRight = hasRightWall_ || pendingRightGreen_;
+
+        if (shouldCheckLeft) {
+          state_ = ExplorerState::TurningToLeft;
+          motion_->turnLeft();
+        } else if (shouldCheckRight) {
+          // No left wall/green, but has right wall/green - go directly to right
+          state_ = ExplorerState::TurningToRight1;
+          motion_->turnRight();
+        } else {
+          // No walls AND no pending green - safe to skip all turns
+          state_ = ExplorerState::FindingNextCell;
+        }
       }
       break;
     }
@@ -477,7 +503,16 @@ public:
       // turning distance
       if (frontIsGreen) {
         logCheckpoint();
+        // Add wall bit for LEFT direction (currentHeading_ is now LEFT after
+        // turn)
+        int wallBit = headingToWallBit(currentHeading_);
+        int currentWalls = navigator_->getMap().getValue(currentX_, currentY_);
+        navigator_->getMap().setValue(currentX_, currentY_,
+                                      currentWalls | wallBit);
+        std::cout << "Added LEFT wall bit " << wallBit
+                  << " for green checkpoint" << std::endl;
       }
+      pendingLeftGreen_ = false; // Reset flag after checking
       state_ = ExplorerState::TurningBackFromLeft;
       motion_->turnRight(); // Face forward again
       break;
@@ -487,8 +522,16 @@ public:
     case ExplorerState::TurningBackFromLeft:
       currentHeading_ =
           static_cast<Heading>((static_cast<int>(currentHeading_) + 1) % 4);
-      state_ = ExplorerState::TurningToRight1;
-      motion_->turnRight(); // Turn right to face right side
+      {
+        bool shouldCheckRight = hasRightWall_ || pendingRightGreen_;
+        if (shouldCheckRight) {
+          state_ = ExplorerState::TurningToRight1;
+          motion_->turnRight(); // Turn right to face right side
+        } else {
+          // No right wall AND no pending green - skip right check entirely
+          state_ = ExplorerState::FindingNextCell;
+        }
+      }
       break;
 
     // ----- TURN TO RIGHT (single turn from front to right) -----
@@ -523,7 +566,16 @@ public:
       // turning distance
       if (frontIsGreen) {
         logCheckpoint();
+        // Add wall bit for RIGHT direction (currentHeading_ is now RIGHT after
+        // turn)
+        int wallBit = headingToWallBit(currentHeading_);
+        int currentWalls = navigator_->getMap().getValue(currentX_, currentY_);
+        navigator_->getMap().setValue(currentX_, currentY_,
+                                      currentWalls | wallBit);
+        std::cout << "Added RIGHT wall bit " << wallBit
+                  << " for green checkpoint" << std::endl;
       }
+      pendingRightGreen_ = false; // Reset flag after checking
       state_ = ExplorerState::TurningBackFromRight;
       motion_->turnLeft(); // Face forward again
       break;
@@ -552,6 +604,9 @@ public:
           int turns = turnsNeeded(dir);
           if (turns == 0) {
             state_ = ExplorerState::MovingForward;
+            // Lookahead for green walls in next cell
+            pendingLeftGreen_ = sensing_->is2SquaresLeftGreen();
+            pendingRightGreen_ = sensing_->is2SquaresRightGreen();
             motion_->startFastForward();
           } else if (turns == 1) {
             state_ = ExplorerState::TurningToNextCell;
@@ -594,6 +649,9 @@ public:
     case ExplorerState::TurningToNextCell:
       currentHeading_ = nextMoveDirection_;
       state_ = ExplorerState::MovingForward;
+      // Lookahead for green walls in next cell
+      pendingLeftGreen_ = sensing_->is2SquaresLeftGreen();
+      pendingRightGreen_ = sensing_->is2SquaresRightGreen();
       motion_->startFastForward();
       break;
 
@@ -664,6 +722,9 @@ public:
       int turns = turnsNeeded(dirBack);
       if (turns == 0) {
         state_ = ExplorerState::MovingForward;
+        // Lookahead for green walls in next cell
+        pendingLeftGreen_ = sensing_->is2SquaresLeftGreen();
+        pendingRightGreen_ = sensing_->is2SquaresRightGreen();
         motion_->startFastForward();
       } else if (turns == 1) {
         state_ = ExplorerState::TurningToNextCell;
