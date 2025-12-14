@@ -1,139 +1,145 @@
-#include <cmath>
-#include <iostream>
-#include <string>
-#include <vector>
-#include <webots/Supervisor.hpp>
+// DFS Maze Exploration - Main Controller
+// Uses explorer.h for DFS, navigator.h for data, motion_control.h for movement
 
-// #include "moving_control.h"
+#include "explorer.h"
 #include "motion_control.h"
+#include "navigator.h"
 #include "sensing.h"
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <webots/Robot.hpp>
 
-using namespace webots;
-using namespace Motion;
-using namespace Sensor;
+// Tee buffer: writes to both console and file
+class TeeBuffer : public std::streambuf {
+public:
+  TeeBuffer(std::streambuf *console, std::streambuf *file)
+      : console_(console), file_(file) {}
 
-// ============================================================================
-// COMMAND TYPES - Use these to build your command sequence
-// ============================================================================
-enum CommandType {
-  FORWARD,   // Move forward N tiles
-  TURN_LEFT, // Turn 90 degrees left
-  TURN_RIGHT // Turn 90 degrees right
-};
-
-struct Command {
-  CommandType type;
-  double value; // For FORWARD: number of tiles. For turns: ignored (use 0)
-};
-
-// ============================================================================
-// >>> EDIT YOUR COMMAND SEQUENCE HERE <<<
-// ============================================================================
-const std::vector<Command> COMMANDS = {
-   // Go forward 5 tiles
-    {FORWARD, 5}, 
-    {TURN_LEFT, 0}, {FORWARD, 1},  {TURN_LEFT, 0}, {FORWARD, 5}, {TURN_RIGHT, 0},
-    {FORWARD, 5},
-    {FORWARD, 1},
-
-    // Turn left 90 degrees
-    // Add more commands here as
-    // needed, e.g.: {FORWARD,
-    // 3}, {TURN_RIGHT, 0},
-    // {FORWARD, 2},
-};
-
-// ============================================================================
-// MAIN FUNCTION
-// ============================================================================
-int main(int argc, char **argv) {
-  // 1. Initialize Robot
-  Supervisor *robot = new Supervisor();
-  int timeStep = (int)robot->getBasicTimeStep();
-
-  // 2. Initialize Modules
-  Sensing *sensing = new Sensing(robot, timeStep);
-  MovingController *motion = new MovingController(robot, sensing);
-
-  // 3. Initial Stabilization
-  for (int i = 0; i < 20; i++) {
-    robot->step(timeStep);
-    sensing->update();
+protected:
+  int overflow(int c) override {
+    if (c == EOF)
+      return !EOF;
+    if (console_->sputc(c) == EOF)
+      return EOF;
+    if (file_->sputc(c) == EOF)
+      return EOF;
+    return c;
   }
 
-  // 4. Calibrate Gyro
-  std::cout << "Calibrating Gyro..." << std::endl;
-  sensing->calibrateGyro(50);
+  int sync() override {
+    console_->pubsync();
+    file_->pubsync();
+    return 0;
+  }
 
-  std::cout << ">>> MAZE SOLVER STARTED <<<" << std::endl;
-  std::cout << "Total commands to execute: " << COMMANDS.size() << std::endl;
+private:
+  std::streambuf *console_;
+  std::streambuf *file_;
+};
 
-  // 5. Execute Command Sequence
-  size_t cmdIndex = 0;
-  bool needNextCommand = true;
+int main() {
+  // Open debug file FIRST (before any cout)
+  std::ofstream debugFile("debug_report.txt");
 
-  while (robot->step(timeStep) != -1) {
-    sensing->update();  
-    
-      
-    // std::cout << "sd" << std::endl;
-    double dt = timeStep / 1000.0;
-    motion->update(dt);
+  // Save original cout buffer and set up tee
+  std::streambuf *originalCoutBuf = std::cout.rdbuf();
+  TeeBuffer teeBuf(originalCoutBuf, debugFile.rdbuf());
+  std::cout.rdbuf(&teeBuf);
 
-    // Start next command when ready
-    if (needNextCommand && !motion->isBusy()) {
-      if (sensing->isFrontWallGreen()) {
-        std::cout << "front wall is green" << std::endl;
+  webots::Robot robot;
+  int timeStep = (int)robot.getBasicTimeStep();
+  double dt = timeStep / 1000.0;
+
+  // Initialize components
+  Sensor::Sensing sensing(&robot, timeStep);
+  Motion::MovingController motion(&robot, &sensing);
+  Navigation::Navigator navigator;
+
+  // Initialize logger
+  navigator.initLogger("exploration_log.txt");
+
+  // Create explorer
+  Exploration::Explorer explorer(&robot, &sensing, &motion, &navigator);
+
+  // Calibrate gyro
+  std::cout << "Calibrating gyro..." << std::endl;
+  sensing.calibrateGyro(20);
+
+  std::cout << "\n========================================" << std::endl;
+  std::cout << "     DFS MAZE EXPLORATION" << std::endl;
+  std::cout << "========================================" << std::endl;
+  std::cout << "Grid: 12x12" << std::endl;
+  std::cout << "Start: (0,0) bottom-right, facing NORTH" << std::endl;
+  std::cout << "----------------------------------------\n" << std::endl;
+
+  // Start exploration
+  explorer.start();
+
+  // Main loop
+  double lastStatusTime = 0;
+  while (robot.step(timeStep) != -1) {
+    sensing.update();
+
+    // Run explorer
+    bool complete = explorer.update(dt);
+
+    // Print status every 2 seconds (TeeBuffer writes to both console and file)
+    double now = robot.getTime();
+    if (now - lastStatusTime > 2.0) {
+      std::cout << std::fixed << std::setprecision(1);
+      std::cout << "[" << now << "s] Cell(" << explorer.getCurrentX() << ","
+                << explorer.getCurrentY() << ") " << explorer.getHeadingStr()
+                << " - " << explorer.getStateStr()
+                << " FW:" << std::setprecision(3)
+                << sensing.getDistanceToFrontWall() << "m" << std::endl;
+      lastStatusTime = now;
+    }
+
+    if (complete) {
+      // Check what type of completion
+      if (explorer.isDestinationReached()) {
+        std::cout << "\n========================================" << std::endl;
+        std::cout << "     MISSION COMPLETE!" << std::endl;
+        std::cout << "========================================" << std::endl;
+        std::cout << "Robot has reached the destination." << std::endl;
       } else {
-        std::cout << "front wall is not green" << std::endl;
+        std::cout << "\n========================================" << std::endl;
+        std::cout << "     EXPLORATION/NAVIGATION COMPLETE!" << std::endl;
+        std::cout << "========================================" << std::endl;
       }
 
-      if (sensing->is2SquaresRightGreen()) {std::cout << "wall way further right is green" << std::endl;}
-      if (cmdIndex >= COMMANDS.size()) {
-        std::cout << ">>> ALL COMMANDS COMPLETE <<<" << std::endl;
-        std::cout << sensing->getDistanceToFrontWall() << std::endl;
-      break;
+      // Print final position
+      std::cout << "Final position: (" << explorer.getCurrentX() << ","
+                << explorer.getCurrentY() << ")" << std::endl;
+
+      // Print map
+      std::cout << "\nExplored Map:" << std::endl;
+      navigator.debugPrintMap();
+
+      // Print checkpoints
+      auto checkpoints = navigator.getMap().getCheckpoints();
+      std::cout << "\nCheckpoints found: " << checkpoints.size() << std::endl;
+      for (const auto &cp : checkpoints) {
+        std::cout << "  (" << cp.x << "," << cp.y << ")" << std::endl;
       }
 
-      const Command &cmd = COMMANDS[cmdIndex];
-      std::cout << "[CMD " << (cmdIndex + 1) << "/" << COMMANDS.size() << "] ";
+      // Destination
+      auto dest = navigator.getDestination();
+      std::cout << "\nCalculated Destination: (" << dest.x << "," << dest.y
+                << ")" << std::endl;
 
-      switch (cmd.type) {
-      case FORWARD:
-      std::cout << "FORWARD " << cmd.value << " tiles" << std::endl;
-      motion->moveForward(cmd.value);
-      break;
-      case TURN_LEFT:
-      std::cout << "TURN LEFT" << std::endl;
-      motion->turnLeft();
-      break;
-      case TURN_RIGHT:
-      std::cout << "TURN RIGHT" << std::endl;
-      motion->turnRight();
-      break;
-    }
+      navigator.flushLog();
 
-    cmdIndex++;
-    needNextCommand = false;
-    }
-
-    // Check if command finished
-    if (!motion->isBusy()) {
-    needNextCommand = true;
+      // Idle loop
+      std::cout << "\nRobot idle. Simulation continues..." << std::endl;
+      while (robot.step(timeStep) != -1) {
+        sensing.update();
+      }
+      break;
     }
   }
 
-  // 6. Cleanup
-  delete motion;
-  delete sensing;
-  delete robot;
   return 0;
 }
-
-    // std::cout << "\n=== DISTANCE READINGS (Meters) ===" << std::endl;
-    // std::cout << "LEFT Wall:  " << sensing.getDistanceToLeftWall() << " m" << std::endl;
-    // std::cout << "RIGHT Wall: " << sensing.getDistanceToRightWall() << " m" << std::endl;
-    // if (sensing.isWallAtFront()) {std::cout << "front" << std::endl;}
-    // if (sensing.isWallAtBack()) {std::cout << "back" << std::endl;}
-    // if (sensing.isWallAtLeft()) {std::cout << "left" << std::endl;}
-    // if (sensing.isWallAtRight()) {std::cout << "right" << std::endl;}
